@@ -13,7 +13,6 @@ int main(int argc, char** argv) {
 		//Movie* movie(long id = 1, string name = "Titanic", int length = 150, vector<string>(tags));
 		LengthRecommenderUser user1(string("Ruben"));
 		cout << user1.getName() << "\naddress is: "<< &user1.getName() << endl;
-		cout << "This is a test" << endl;
 		
 		
 	}
