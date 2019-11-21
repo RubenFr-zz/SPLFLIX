@@ -14,6 +14,7 @@ int main(int argc, char** argv) {
 		LengthRecommenderUser user1(string("Ruben"));
 		cout << user1.getName() << "\naddress is: "<< &user1.getName() << endl;
 		cout << "amir" << endl;
+		cout << "test of the new branch" << endl;
 		
 	}
 
