@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 		cout << user1.getName() << "\naddress is: "<< &user1.getName() << endl;
 		cout << "amir" << endl;
 		cout << "test of the new branch" << endl;
-		
+		hklhl;
 	}
 
 	return 0;
