@@ -68,6 +68,11 @@ std::vector<Watchable*> User::get_history() const {
 LengthRecommenderUser::LengthRecommenderUser(const std::string& name) : User(name){}  //Check if ok
 
 Watchable* LengthRecommenderUser::getRecommendation(Session& s) {
+	int sum = 0;
+	for (std::vector<Watchable*>::const_iterator it = get_history().begin(); it != get_history().end(); ++it) {
+		sum += (*it).getLength();// Problemmmm
+
+	}
 	return NULL;
 }
 
