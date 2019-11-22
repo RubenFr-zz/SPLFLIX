@@ -9,7 +9,7 @@ User::User(const std::string& name) : name(name) {}
 //Destructor
 User::~User() 
 {
-	for (std::vector<Watchable*>::const_iterator it = history.begin(); it != history.end(); it++) 
+	for (std::vector<Watchable*>::iterator it = history.begin(); it != history.end(); ++it)
 	{
 		delete *it;
 	}
@@ -17,7 +17,7 @@ User::~User()
 
 //Copy Constructor
 User::User(const User& other) : name(other.getName()) {
-	for (std::vector<Watchable*>::const_iterator it = other.get_history().begin(); it != other.get_history().end(); it++) {
+	for (std::vector<Watchable*>::iterator it = other.get_history().begin(); it != other.get_history().end(); ++it) {
 		history.push_back(*it);
 	}
 }
