@@ -27,7 +27,7 @@ Session::Session(const std::string &configFilePath) {
         for (int j = 0; j < movies[i]["tags"].size(); j++) {
             tags.push_back(movies[i]["tags"][j]);
         }
-        
+
         Watchable *movie = new Movie(id, name, length, tags);
         content.push_back(movie);
         id++;
@@ -35,12 +35,15 @@ Session::Session(const std::string &configFilePath) {
 
     for (int i = 0; i < series.size(); i++) {
         std::vector<std::string> tags;
+        std::string name = series[i]["name"];
+        int length = series[i]["episode_length"];
+
         for (int j = 0; j < series[i]["tags"].size(); j++) {
             tags.push_back(series[i]["tags"][j]);
         }
         for (int S = 0; S < series[i]["seasons"].size(); S++) {
             for (int E = 1; E <= series[i]["seasons"][S]; E++) {
-                Watchable *episode = new Episode(id, series[i]["name"], series[i]["length"], S, E, tags);
+                Watchable *episode = new Episode(id, name, length, S+1, E, tags);
                 content.push_back(episode);
                 id++;
             }
@@ -68,4 +71,10 @@ Session &Session::operator=(Session &&other) {
 }
 
 void Session::start() { return; }
+
+//getters
+std::vector<Watchable*> Session::getContent() { return content;}
+std::vector<BaseAction*> Session::getActionsLog() { return actionsLog; }
+std::unordered_map<std::string, User*> Session::getUserMap() { return userMap; }
+User* Session::getActiveUser() { return activeUser; }
 

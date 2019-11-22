@@ -24,6 +24,13 @@ public:
 	Session& operator=(Session&& other); //Move assignment operator
 
 	void start();
+
+	//getters
+    std::vector<Watchable*> getContent();
+    std::vector<BaseAction*> getActionsLog();
+    std::unordered_map<std::string, User*> getUserMap();
+    User* getActiveUser();
+
 private:
 	std::vector<Watchable*> content;
 	std::vector<BaseAction*> actionsLog;
