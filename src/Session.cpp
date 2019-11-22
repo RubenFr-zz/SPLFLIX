@@ -52,10 +52,20 @@ Session::Session(const std::string &configFilePath) {
 }
 
 //Destructor
-Session::~Session() {}
+Session::~Session()
+{
+    for (std::vector<Watchable*>::iterator it = content.begin(); it != content.end(); ++it){
+        delete *it;
+    }
+    for (std::vector<BaseAction*>::iterator it = actionsLog.begin(); it != actionsLog.end(); ++it){
+        delete *it;
+    }
+    delete activeUser;
+}
 
 //Copy constructor
-Session::Session(const Session &other) {}
+Session::Session(const Session &other) : content(other.getContent()), actionsLog(other.getActionsLog()), userMap(other.getUserMap()),
+    activeUser(other.getActiveUser()) {}
 
 //Copy assignment operator
 Session &Session::operator=(Session &other) {
@@ -73,8 +83,8 @@ Session &Session::operator=(Session &&other) {
 void Session::start() { return; }
 
 //getters
-std::vector<Watchable*> Session::getContent() { return content;}
-std::vector<BaseAction*> Session::getActionsLog() { return actionsLog; }
-std::unordered_map<std::string, User*> Session::getUserMap() { return userMap; }
-User* Session::getActiveUser() { return activeUser; }
+std::vector<Watchable*> Session::getContent() const { return content;}
+std::vector<BaseAction*> Session::getActionsLog() const { return actionsLog; }
+std::unordered_map<std::string, User*> Session::getUserMap() const { return userMap; }
+User* Session::getActiveUser() const { return activeUser; }
 

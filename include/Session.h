@@ -13,6 +13,7 @@
 
 class User;
 class Watchable;
+class BaseAction;
 
 class Session {
 public:
@@ -26,15 +27,15 @@ public:
 	void start();
 
 	//getters
-    std::vector<Watchable*> getContent();
-    std::vector<BaseAction*> getActionsLog();
-    std::unordered_map<std::string, User*> getUserMap();
-    User* getActiveUser();
+    std::vector<Watchable*> getContent() const;
+    std::vector<BaseAction*> getActionsLog() const;
+    std::unordered_map<std::string, User*> getUserMap() const;
+    User* getActiveUser() const;
 
 private:
-	std::vector<Watchable*> content;
-	std::vector<BaseAction*> actionsLog;
-	std::unordered_map<std::string, User*> userMap;
-	User* activeUser;
+    std::vector<Watchable*> content;
+    std::vector<BaseAction*> actionsLog;
+    std::unordered_map<std::string,User*> userMap;
+    User* activeUser;
 };
 #endif

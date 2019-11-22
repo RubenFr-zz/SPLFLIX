@@ -3,6 +3,9 @@
 
 #include <string>
 #include <iostream>
+#include "../include/Watchable.h"
+#include "../include/Session.h"
+#include "../include/User.h"
 
 class Session;
 
@@ -10,6 +13,9 @@ enum ActionStatus {
 	PENDING, COMPLETED, ERROR
 };
 
+//enum ActionStatus {
+//    PENDING = "PENDING", COMPLETED = "COMPLETED", ERROR = "ERROR"
+//};
 
 class BaseAction {
 public:

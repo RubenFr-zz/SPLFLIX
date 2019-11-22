@@ -42,10 +42,10 @@ User& User::operator=(const User &other) {
 User& User::operator=(User &&other){
 	if (this != &other)
 	{
-		delete& name;
+//		delete name;
 		std::string name = other.getName();
 		history = other.get_history();
-		delete& other.getName();
+//		delete other.getName();
 		
 		//other.get_history().begin() = nullptr;		HOW TO DELETE A VECTOR<WATCHABLE*> ?
 	}
