@@ -4,15 +4,25 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
-#include "Action.h"
+#include <fstream>
+
+#include "../include/Action.h"
+#include "../include/Watchable.h"
+#include "../include/json.hpp"
+
 
 class User;
 class Watchable;
 
 class Session {
 public:
-	Session(const std::string& configFilePath);
-	~Session();
+	Session(const std::string& configFilePath); //Constructor
+	~Session();	//Destructor
+	Session(const Session& other); //Copy constructor
+	Session& operator=(Session& other); //Copy assignment operator
+	Session(Session&& other); //Move constructor
+	Session& operator=(Session&& other); //Move assignment operator
+
 	void start();
 private:
 	std::vector<Watchable*> content;

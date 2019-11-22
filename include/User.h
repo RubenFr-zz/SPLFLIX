@@ -14,9 +14,9 @@ public:
 	User(const std::string& name);
 	~User();
 	User(const User& other);
-	User& operator=(const User &other);
+	User& operator=(const User& other);
 	User(User&& other);
-	User& operator=(User &&other);
+	User& operator=(User&& other);
 
 	virtual Watchable* getRecommendation(Session& s) = 0;
 	std::string getName() const;
