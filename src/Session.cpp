@@ -70,3 +70,11 @@ Session &Session::operator=(Session &&other) {
 
 void Session::start() { return; }
 
+//getters
+std::vector<Watchable*> Session::getContent() { return content; }
+
+std::vector<BaseAction*> Session::getActionsLog() { return actionsLog; }
+
+std::unordered_map<std::string, User*> Session::getUserMap() { return userMap; }
+
+User* Session::getActiveUser() { return activeUser; }
