@@ -20,8 +20,23 @@ std::vector<std::string> Watchable::getTags() const { return tags; }
 Movie::Movie(long id, std::string &name, int length, std::vector<std::string> &tags) :
         Watchable(id, length, tags), name(name) {}
 
-std::string Movie::toString() const {
-    return "";
+std::string Movie::toString() const
+{
+    std::string str = "";
+    str += std::to_string(getID()) + ". ";
+    str += getName();
+    str += " " + std::to_string(getLength());
+    str += " minutes ";
+    str += "[";
+    std::vector<std::string> tags = getTags();
+    for (std::vector<std::string>::iterator it = tags.begin(); it != tags.end(); ++it)
+    {
+        str += *it;
+        if (*it != tags.back()) { str += ", "; }
+    }
+    str += "]\n";
+
+    return str;
 }
 
 Watchable *Movie::getNextWatchable(Session &) const {
@@ -42,15 +57,16 @@ std::string Episode::toString() const {
     std::string str = "";
     str += std::to_string(getID()) + ". ";
     str += getSeriesName();
-    str += " S" + getSeason();
-    str += "E" + getEpisode();
-    str += " " + getLength();
+    str += " S" + std::to_string(getSeason());
+    str += "E" + std::to_string(getEpisode());
+    str += " " + std::to_string(getLength());
     str += " minutes ";
     str += "[";
-    for (std::vector<std::string>::iterator it = getTags().begin(); it != getTags().end(); ++it) {
+    std::vector<std::string> tags = getTags();
+    for (std::vector<std::string>::iterator it = tags.begin(); it != tags.end(); ++it)
+    {
         str += *it;
-        if (*it != getTags().back()) { str += ", "; }
-
+        if (*it != tags.back()) { str += ", "; }
     }
     str += "]\n";
 
