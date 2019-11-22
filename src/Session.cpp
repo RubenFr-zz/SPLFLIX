@@ -16,6 +16,7 @@ Session::Session(const std::string &configFilePath) {
     i >> j;
     nlohmann::json movies = j["movies"];
     nlohmann::json series = j["tv_series"];
+	
 
     long id = 1;
 

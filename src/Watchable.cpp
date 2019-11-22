@@ -1,53 +1,66 @@
 #include "../include/Watchable.h"
 
+using namespace std;
 //------------Watchable class-------------
 
 //Constructor
-Watchable::Watchable(long id, int length, const std::vector<std::string> &tags) : id(id), length(length), tags(tags) {}
+Watchable::Watchable(long id, int length, const vector<string> &tags) : id(id), length(length), tags(tags) {}
 
 //Destructor
 Watchable::~Watchable() {}
 
-//getters
+//Getters
 long Watchable::getID() const { return id; }
 
 int Watchable::getLength() const { return length; }
 
-std::vector<std::string> Watchable::getTags() const { return tags; }
+vector<string> Watchable::getTags() const { return tags; }
 
 
 //-----------Movie class------------------
-Movie::Movie(long id, std::string &name, int length, std::vector<std::string> &tags) :
+Movie::Movie(long id, string &name, int length, vector<string> &tags) :
         Watchable(id, length, tags), name(name) {}
 
-std::string Movie::toString() const {
-    return "";
+string Movie::toString() const {
+	string str = "";
+	str += to_string(getID()) + ". ";
+	str += getName() + " ";
+	str += to_string(getLength()) + " minutes ";
+	str += "[";
+	for (vector<string>::iterator it = getTags().begin(); it != getTags().end(); ++it) {
+		str += *it;
+		if (*it != getTags().back()) { str += ", "; }
+
+	}
+	str += "]\n";
+
+	return str;
 }
 
 Watchable *Movie::getNextWatchable(Session &) const {
     return nullptr;
 }
 
-std::string Movie::getName() const { return name; }
+string Movie::getName() const { return name; }
 
 //-------------Episode class---------------
-Episode::Episode(long id, const std::string &seriesName, int length, int season, int episode,
-                 const std::vector<std::string> &tags) :
+Episode::Episode(long id, const string &seriesName, int length, int season, int episode,
+                 const vector<string> &tags) :
         Watchable(id, length, tags), episode(episode), season(season), seriesName(seriesName) {
     nextEpisodeId = 0;
 
 }
 
-std::string Episode::toString() const {
-    std::string str = "";
-    str += std::to_string(getID()) + ". ";
+string Episode::toString() const {
+    string str = "";
+    str += to_string(getID()) + ". ";
     str += getSeriesName();
     str += " S" + getSeason();
     str += "E" + getEpisode();
     str += " " + getLength();
     str += " minutes ";
     str += "[";
-    for (std::vector<std::string>::iterator it = getTags().begin(); it != getTags().end(); ++it) {
+    for (vector<string>::iterator it = getTags().begin(); it != getTags().end(); ++it) {
         str += *it;
         if (*it != getTags().back()) { str += ", "; }
 
@@ -61,7 +74,7 @@ Watchable *Episode::getNextWatchable(Session &) const {
     return nullptr;
 }
 
-std::string Episode::getSeriesName() const { return seriesName; }
+string Episode::getSeriesName() const { return seriesName; }
 
 int Episode::getSeason() const { return season; }
 

@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
 //		cout << "amir" << endl;
 //		cout << "hello to you" << endl;
 
-    std::ifstream i("C:/Users/Ruben/CLionProjects/SPLFLIX/json_config.json");
+    ifstream i("C:/Users/Ruben/CLionProjects/SPLFLIX/json_config.json");
     nlohmann::json j;
     i >> j;
     nlohmann::json movies = j["movies"];
@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
 //    cout << "number of tags in first movie: " << movies[0]["tags"].size() << endl;
 //
     for (int i = 0; i < movies.size(); i++) {
-        std::vector<std::string> tags;
+        vector<string> tags;
         for (int j = 0; j < movies[i]["tags"].size(); j++) {
             tags.push_back(movies[i]["tags"][j]);
         }
