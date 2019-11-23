@@ -74,23 +74,24 @@ Watchable* LengthRecommenderUser::getRecommendation(Session& s) {
 	for (std::vector<Watchable*>::const_iterator it = get_history().begin(); it != get_history().end(); ++it) {
 		sum += (*it)->getLength();// Im not sure about that, need to check
 	}
-	int flag = 0;// If we found an appropriate length equal show
 	int size = get_history().size();
 	int avgLen = (int)std::round(sum / size);// To have an integer length
-	Watchable* recommenedShow = nullptr;// The recommendation
+	Watchable* recommenedShow;// The recommendation
+
+	// Create new vector
 	std::vector<Watchable*>::const_iterator it2 = s.getContent().begin();
-	while (it2 != s.getContent().end() || flag == 1) {// O(n^2) maybe better?
+	std::vector< std::pair <Watchable*, int>> lenVec;
+	while (it2 != s.getContent().end()) {// O(n^2) maybe better?
 		std::vector<Watchable*>::iterator itv = std::find(get_history().begin(), get_history().end(), *it2);// Is that show is in the history?
-		if(itv != get_history().end())// Means it appears in the history
+		if (itv != get_history().end())// Means it appears in the history
 			it2++;
 		else// Means that the user didnt watched that
-			if ((*itv)->getLength() == avgLen) {// We found a length suitable show!
-				recommenedShow = *itv;
-				flag = 1;
-			}
-			else
-				it2++;
+			lenVec.push_back(std::make_pair(*it2, std::abs(avgLen - (*it2)->getLength())));// Vector with pointer to length good shows and how close is their length to avgLen
 	}
+
+	int min = std::min_element((*lenVec.begin()).second, (*lenVec.end()).second);// Min dis
+	std::vector< std::pair <Watchable*, int>>::const_iterator it3 = std::find_if(lenVec.begin(), lenVec.end(), (*it3).second==min);// find the right pair
+	recommenedShow = (*it3).first;
 	// We need to check if we need to clean memory here!!
 	return recommenedShow;
 }
