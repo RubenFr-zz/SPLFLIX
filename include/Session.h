@@ -31,11 +31,19 @@ public:
     std::vector<BaseAction*> getActionsLog() const;
     std::unordered_map<std::string, User*> getUserMap() const;
     User* getActiveUser() const;
+    std::vector<std::string> getAction();
+
+protected:
+    std::vector<std::string> split() const;
 
 private:
     std::vector<Watchable*> content;
     std::vector<BaseAction*> actionsLog;
     std::unordered_map<std::string,User*> userMap;
     User* activeUser;
+
+    std::string action_in;
+    std::vector<std::string> action;
+
 };
 #endif

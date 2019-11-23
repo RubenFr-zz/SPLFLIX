@@ -9,6 +9,8 @@
 //Constructor
 Session::Session(const std::string &configFilePath) {
     activeUser = nullptr;
+    action_in = "";
+    action = {};
 
     //read the json file
     std::ifstream i(configFilePath);
@@ -77,6 +79,7 @@ Session::Session(Session &&other) {}
 
 //Move assignment operator
 Session &Session::operator=(Session &&other) {
+    getAction();
     return *this;
 }
 
@@ -87,4 +90,6 @@ std::vector<Watchable*> Session::getContent() const { return content;}
 std::vector<BaseAction*> Session::getActionsLog() const { return actionsLog; }
 std::unordered_map<std::string, User*> Session::getUserMap() const { return userMap; }
 User* Session::getActiveUser() const { return activeUser; }
+std::vector<std::string> Session::getAction() { return action; }
+
 
