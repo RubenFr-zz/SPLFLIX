@@ -1,4 +1,6 @@
 #include "../include/User.h"
+#include "../include/Watchable.h"
+#include "../include/Session.h"
 #include <iostream>
 
 //-------------User class--------------//
@@ -23,8 +25,8 @@ User::User(const User& other) : name(other.getName()) {
 }
 
 //Move Constructor
-User::User(User&& other) : name(other.getName()), history(std::move(other.get_history())) 
-{
+User::User(User&& other) : name(other.getName()), history(std::move(other.get_history())){
+	//doesnt work, we need to earse the other pointer: other.get_history() = nullptr;
 }  
 
 
@@ -70,10 +72,27 @@ LengthRecommenderUser::LengthRecommenderUser(const std::string& name) : User(nam
 Watchable* LengthRecommenderUser::getRecommendation(Session& s) {
 	int sum = 0;
 	for (std::vector<Watchable*>::const_iterator it = get_history().begin(); it != get_history().end(); ++it) {
-		sum += (*it).getLength();// Problemmmm
-
+		sum += (*it)->getLength();// Im not sure about that, need to check
 	}
-	return NULL;
+	int flag = 0;// If we found an appropriate length equal show
+	int size = get_history().size();
+	int avgLen = (int)std::round(sum / size);// To have an integer length
+	Watchable* recommenedShow = nullptr;// The recommendation
+	std::vector<Watchable*>::const_iterator it2 = s.getContent().begin();
+	while (it2 != s.getContent().end() || flag == 1) {// O(n^2) maybe better?
+		std::vector<Watchable*>::iterator itv = std::find(get_history().begin(), get_history().end(), *it2);// Is that show is in the history?
+		if(itv != get_history().end())// Means it appears in the history
+			it2++;
+		else// Means that the user didnt watched that
+			if ((*itv)->getLength() == avgLen) {// We found a length suitable show!
+				recommenedShow = *itv;
+				flag = 1;
+			}
+			else
+				it2++;
+	}
+	// We need to check if we need to clean memory here!!
+	return recommenedShow;
 }
 
 

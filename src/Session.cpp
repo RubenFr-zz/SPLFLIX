@@ -1,4 +1,6 @@
 #include "../include/Session.h"
+#include "../include/Watchable.h"
+
 
 //Variables in the class:
 //std::vector<Watchable*> content;
