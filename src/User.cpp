@@ -111,4 +111,17 @@ Watchable* RerunRecommenderUser::getRecommendation(Session& s) {
 //Constructor
 GenreRecommenderUser::GenreRecommenderUser(const std::string& name) : User(name) {}
 
-Watchable* GenreRecommenderUser::getRecommendation(Session& s) { return NULL; }
+Watchable* GenreRecommenderUser::getRecommendation(Session& s) {
+	std::vector<std::pair<std::string, int>>loveVec;
+	//Look at the history
+	for (std::vector<Watchable*>::const_iterator it = get_history().begin(); it != get_history().end(); it++) {// Check every content in the history list
+		//Check if the tag is already in the vector!!!!!!!!!
+		for (std::vector<std::string>::const_iterator it2 = (*it)->getTags().begin(); it2 != (*it)->getTags().end(); it2++) {// Check every tag of each show
+			std::vector<std::pair<std::string, int>>::const_iterator it3 = loveVec.begin();
+			while (it3 != loveVec.end()) {
+				if((*it3).first.compare((*it2))==1)// means we already have that tag in the loveVec
+
+			}
+	}
+	return NULL;
+}
