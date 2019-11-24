@@ -8,6 +8,7 @@
 
 //Constructor
 Session::Session(const std::string &configFilePath) {
+    userMap.clear();
     activeUser = nullptr;
     action_in = "";
     action = {};
@@ -83,7 +84,41 @@ Session &Session::operator=(Session &&other) {
     return *this;
 }
 
-void Session::start() { return; }
+void Session::start()
+{
+    std::cin >> action_in;
+    action = split(action_in);
+
+    if(action.empty()) { std::cout << "No action enterded" << std::endl; }
+    else
+    {
+        ActionType act = ActionType::null;
+        if (getStringToAction().count(action[0]) > 0) { act = getStringToAction().at(action[0]); }
+        switch(act){
+            case(createuser_A):
+                break;
+            case(changeuser_A):
+                break;
+            case(deleteuser_A):
+                break;
+            case(dupuser_A):
+                break;
+            case(watch_A):
+                break;
+            case(content_A):
+                break;
+            case(watchhist_A):
+                break;
+            case(log_A):
+                break;
+            case(exit_A):
+                break;
+            case(null):
+                std::cout << "Action invalid" << std::endl;
+        }
+    }
+    return;
+}
 
 //getters
 std::vector<Watchable*> Session::getContent() const { return content;}
@@ -91,5 +126,14 @@ std::vector<BaseAction*> Session::getActionsLog() const { return actionsLog; }
 std::unordered_map<std::string, User*> Session::getUserMap() const { return userMap; }
 User* Session::getActiveUser() const { return activeUser; }
 std::vector<std::string> Session::getAction() { return action; }
+std::unordered_map<std::string,ActionType> Session::getStringToAction() const { return StringToAction; }
+
+std::vector<std::string> Session::split(std::string action_in) const
+{
+    std::istringstream ss(action_in);
+    std::vector<std::string> results(std::istream_iterator<std::string>{ss},
+                                     std::istream_iterator<std::string>());
+    return results;
+}
 
 
