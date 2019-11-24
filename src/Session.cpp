@@ -1,4 +1,6 @@
 #include "../include/Session.h"
+#include "../include/Watchable.h"
+
 
 //Variables in the class:
 //std::vector<Watchable*> content;
@@ -19,6 +21,7 @@ Session::Session(const std::string &configFilePath) {
     i >> j;
     nlohmann::json movies = j["movies"];
     nlohmann::json series = j["tv_series"];
+	
 
     long id = 1;
 
@@ -138,3 +141,11 @@ std::vector<std::string> Session::split(std::string action_in) const
 }
 
 
+//getters
+std::vector<Watchable*> Session::getContent() { return content; }
+
+std::vector<BaseAction*> Session::getActionsLog() { return actionsLog; }
+
+std::unordered_map<std::string, User*> Session::getUserMap() { return userMap; }
+
+User* Session::getActiveUser() { return activeUser; }

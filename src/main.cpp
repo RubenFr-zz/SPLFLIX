@@ -6,12 +6,10 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-
 //    Tester for reader of Json file
     const string path = "C:/Users/Ruben/source/repos/RubenFr/SPLFLIX/config1.json";
     Session *test = new Session(path);
     vector<Watchable*> content = test->getContent();
-
     cout << endl << "List of all the content: " << endl << endl;
     for (auto it = content.begin(); it != content.end(); ++it) {
         Watchable* tmp = *it;

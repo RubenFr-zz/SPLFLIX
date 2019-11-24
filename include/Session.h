@@ -43,6 +43,7 @@ public:
 protected:
     std::vector<std::string> split(std::string action_in) const; // Function that split the array string into a vector of every word "action"
 
+
 private:
     std::vector<Watchable*> content;
     std::vector<BaseAction*> actionsLog;
