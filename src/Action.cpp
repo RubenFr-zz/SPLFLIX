@@ -85,7 +85,7 @@ std::string CreateUser::toString() const
 //-----------DeleteUser class--------------
 void DeleteUser::act(Session &sess)
 {
-    std::vector action = sess.getAction();
+    std::vector<std::string> action = sess.getAction();
     std::unordered_map<std::string, User*> users = sess.getUserMap();
     if (action.size() != 2)
     {

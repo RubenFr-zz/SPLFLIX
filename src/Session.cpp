@@ -96,6 +96,7 @@ void Session::start()
         if (getStringToAction().count(action[0]) > 0) { act = getStringToAction().at(action[0]); }
         switch(act){
             case(createuser_A):
+				std::cout << "entered in create user" << std::endl;
                 break;
             case(changeuser_A):
                 break;
