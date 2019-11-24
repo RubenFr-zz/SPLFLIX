@@ -27,16 +27,18 @@ public:
 	void complete();
 	void error(const std::string& errorMsg);
 	std::string getErrorMsg() const;
+	void changeErrorMsg(const std::string& errorMsg);
 
 	//Getters
     const std::unordered_map<std::string, Type> getStringToType() const;
-    const std::unordered_map<Type, std::string> getTypeToString() const;
+//    const std::unordered_map<Type, std::string> getTypeToString() const;
+    const std::unordered_map<ActionStatus , std::string> getStatusToString() const;
 
 private:
 	std::string errorMsg;
 	ActionStatus status;
 
-/// Map from strings to enum values
+/// Map from strings to Type values
     const std::unordered_map<std::string, Type> StringToType =
             {
                     { "len", Type::len },
@@ -44,13 +46,22 @@ private:
                     { "gen", Type::gen}
             };
 
-/// Map from enum values to strings
-    const std::unordered_map<Type, std::string> TypeToString =
+/// Map from Type values to strings
+//    const std::unordered_map<Type, std::string> TypeToString =
+//            {
+//                    { Type::len, "len" },
+//                    { Type::rer, "rer" },
+//                    { Type::gen, "gen"}
+//            };
+
+/// Map from ActionStatus values to strings
+    const std::unordered_map<ActionStatus , std::string> StatusToString =
             {
-                    { Type::len, "len" },
-                    { Type::rer, "rer" },
-                    { Type::gen, "gen"}
+                    { ActionStatus::PENDING, "PENDING" },
+                    { ActionStatus::COMPLETED, "COMPLETED" },
+                    { ActionStatus::ERROR, "ERROR"}
             };
+
 };
 
 class CreateUser : public BaseAction {

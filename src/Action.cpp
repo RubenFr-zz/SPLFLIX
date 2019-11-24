@@ -16,29 +16,35 @@ void BaseAction::complete() {
 
 void BaseAction::error(const std::string &errorMsg) {
     status = ActionStatus::ERROR;
-    getErrorMsg() = errorMsg;
+    changeErrorMsg(errorMsg);
 }
 
 std::string BaseAction::getErrorMsg() const {
     return errorMsg;
 }
 
+void BaseAction::changeErrorMsg(const std::string& msg)
+{
+    errorMsg = msg;
+}
+
 //Getters---------------------------------
 const std::unordered_map<std::string, Type> BaseAction::getStringToType() const { return StringToType; };
-const std::unordered_map<Type, std::string> BaseAction::getTypeToString() const { return TypeToString; };
+//const std::unordered_map<Type, std::string> BaseAction::getTypeToString() const { return TypeToString; };
+const std::unordered_map<ActionStatus, std::string> BaseAction::getStatusToString() const { return StatusToString; }
 
 //-----------CreateUser class--------------
 
 void CreateUser::act(Session &sess)
 {
-    std::vector<std::string> action = sess.getAction();
-    std::string name;
-    std::string type_str;
-    User* user;
+    std::vector<std::string> action = sess.getAction(); //get the action entered
+    std::string name; // name of the new user to be
+    std::string type_str; // Recommendation picked by the user
+    User* user; // Create a new user yet to determine what type it will be of
 
     if (action.size() != 3)
     {
-        error("input not valid");
+        error("Input not valid to create a User");  // To create a user 3 words must me entered !
     }else{
         name = action[1];
         type_str = action[2];
@@ -71,15 +77,33 @@ void CreateUser::act(Session &sess)
 
 std::string CreateUser::toString() const
 {
-    std::string str = "CreateUser" + this->getStatus();
+    std::string str = "CreateUser " + getStatusToString().at(getStatus());
+    if (getStatus() == ActionStatus::ERROR) { str += ": " +getErrorMsg(); }
     return str;
 }
 
 //-----------DeleteUser class--------------
-void DeleteUser::act(Session &sess) {}
+void DeleteUser::act(Session &sess)
+{
+    std::vector action = sess.getAction();
+    std::unordered_map<std::string, User*> users = sess.getUserMap();
+    if (action.size() != 2)
+    {
+        error("Input not valid to delete a User");
+    }else{
+        std::string toDelete = action[1];
+        if (users.count(toDelete) > 0) {
+            users.erase(toDelete);
+            complete();
+        }else {
+            error("The user doesn't exist");
+        }
+    }
+}
 
 std::string DeleteUser::toString() const {
-    std::string str = "DeleteUser" + this->getStatus();
+    std::string str = "DeleteUser " + getStatusToString().at(getStatus());
+    if (getStatus() == ActionStatus::ERROR) { str += ": " +getErrorMsg(); }
     return str;
 }
 
@@ -89,7 +113,8 @@ void DuplicateUser::act(Session &sess) {}
 
 std::string DuplicateUser::toString() const
 {
-    std::string str = "DuplicateUser" + this->getStatus();
+    std::string str = "DuplicateUser " + getStatusToString().at(getStatus());
+    if (getStatus() == ActionStatus::ERROR) { str += ": " +getErrorMsg(); }
     return str;
 }
 
@@ -107,7 +132,8 @@ void PrintContentList::act(Session &sess) {
 }
 
 std::string PrintContentList::toString() const {
-    std::string str = "PrintContentList" + this->getStatus();
+    std::string str = "PrintContentList " + getStatusToString().at(getStatus());
+    if (getStatus() == ActionStatus::ERROR) { str += ": " + getErrorMsg(); }
     return str;
 }
 
@@ -119,17 +145,19 @@ void PrintWatchHistory::act(Session &sess) {
 
     std::cout << "Watch history for " << active_user->getName() << std::endl;
 
-    for (auto it = watch_history.begin(); it != watch_history.end(); ++it) {
-        Watchable *tmp = *it;
-        std::cout << tmp->toString();
-    }
-
-    complete();
+    if (!watch_history.empty()) {
+        for (std::vector<Watchable *>::iterator it = watch_history.begin(); it != watch_history.end(); ++it) {
+            Watchable *tmp = *it;
+            std::cout << tmp->toString();
+        }
+        complete();
+    }else { error("The User has no history..."); }
     return;
 }
 
 std::string PrintWatchHistory::toString() const {
-    std::string str = "PrintWatchHistory" + this->getStatus();
+    std::string str = "PrintWatchHistory " + getStatusToString().at(getStatus());
+    if (getStatus() == ActionStatus::ERROR) { str += ": " + getErrorMsg(); }
     return str;
 }
 
@@ -141,25 +169,27 @@ void Watch::act(Session &sess) {
 }
 
 std::string Watch::toString() const {
-    return "";
+    std::string str = "Watch " + getStatusToString().at(getStatus());
+    if (getStatus() == ActionStatus::ERROR) { str += ": " +getErrorMsg(); }
+    return str;
 }
 
 //-----------PrintActionsLog class-----------
 void PrintActionsLog::act(Session &sess) {
 
-    std::vector<BaseAction *> log = sess.getActionsLog();
+    std::vector<BaseAction*> log = sess.getActionsLog();
     for (auto it = log.begin(); it != log.end(); ++it) {
         BaseAction *action = *it;
         std::string str = action->toString();
         std::cout << str << std::endl;
     }
-
     complete();
     return;
 }
 
 std::string PrintActionsLog::toString() const {
-    std::string str = "PrintActionsLog" + this->getStatus();
+    std::string str = "PrintActionsLog " + getStatusToString().at(getStatus());
+    if (getStatus() == ActionStatus::ERROR) { str += ": " +getErrorMsg(); }
     return str;
 }
 
@@ -168,6 +198,7 @@ std::string PrintActionsLog::toString() const {
 void Exit::act(Session &sess) {}
 
 std::string Exit::toString() const {
-    std::string str = "PrintContentList" + this->getStatus();
-    return str;
+    std::string str = "Exit " + getStatusToString().at(getStatus());
+    if (getStatus() == ActionStatus::ERROR) { str += ": " +getErrorMsg(); }
+    return str;;
 }
