@@ -81,12 +81,11 @@ Watchable* LengthRecommenderUser::getRecommendation(Session& s) {
 	// Create new vector
 	std::vector<Watchable*>::const_iterator it2 = s.getContent().begin();
 	std::vector< std::pair <Watchable*, int>> lenVec;
-	while (it2 != s.getContent().end()) {// O(n^2) maybe better?
+	while (it2 != s.getContent().end()) {
 		std::vector<Watchable*>::iterator itv = std::find(get_history().begin(), get_history().end(), *it2);// Is that show is in the history?
-		if (itv != get_history().end())// Means it appears in the history
-			it2++;
-		else// Means that the user didnt watched that
+		if (itv == get_history().end())// Means that the user didnt watched that
 			lenVec.push_back(std::make_pair(*it2, std::abs(avgLen - (*it2)->getLength())));// Vector with pointer to length good shows and how close is their length to avgLen
+		it2++;
 	}
 
 	int min = std::min_element((*lenVec.begin()).second, (*lenVec.end()).second);// Min dis
@@ -113,15 +112,60 @@ GenreRecommenderUser::GenreRecommenderUser(const std::string& name) : User(name)
 
 Watchable* GenreRecommenderUser::getRecommendation(Session& s) {
 	std::vector<std::pair<std::string, int>>loveVec;
-	//Look at the history
+	//Look at the history and create vector of the most loved genres
 	for (std::vector<Watchable*>::const_iterator it = get_history().begin(); it != get_history().end(); it++) {// Check every content in the history list
-		//Check if the tag is already in the vector!!!!!!!!!
+		//Check if the tag is already in the vector
+		int flag = 0;
 		for (std::vector<std::string>::const_iterator it2 = (*it)->getTags().begin(); it2 != (*it)->getTags().end(); it2++) {// Check every tag of each show
-			std::vector<std::pair<std::string, int>>::const_iterator it3 = loveVec.begin();
-			while (it3 != loveVec.end()) {
-				if((*it3).first.compare((*it2))==1)// means we already have that tag in the loveVec
-
+			std::vector<std::pair<std::string, int>>::iterator it3 = loveVec.begin();
+			while (it3 != loveVec.end() && flag != 1) {
+				if ((*it3).first.compare((*it2)) == 1) {// means we already have that tag in the loveVec
+					(*it3).second++;
+					flag = 1;
+				}
+				it3++;
 			}
+			if (it3 == loveVec.end() && flag == 0)// Means this is a new tag
+				loveVec.push_back(std::make_pair((*it2), 1));// Adding the new tag to the loveVec
+		}
 	}
-	return NULL;
+	// Now we will find which genre is most popular in the history and check if there are two or more loved genres
+	int max = std::max_element((*loveVec.begin()).second, (*loveVec.end()).second);// The most watched genre
+	std::vector<std::string> bestGenres;
+	for (std::vector<std::pair<std::string, int>>::const_iterator itMost = loveVec.begin(); itMost != loveVec.end(); itMost++) {
+		if ((*itMost).second == max)// Means is one of the most popular tags
+			bestGenres.push_back((*itMost).first);// We took the name of the genre to a vector with the best genres
+	}
+	std::string bestGenre = "";
+	if (bestGenres.size() == 1)// If there is one and only most popular genre
+		bestGenre = bestGenres.at(0);
+	else {
+		// Check from where indexs starts at C++
+		for (int i = 0; i < bestGenres.size(); i++) {// Number of popular tags
+			for (int j = i + 1; j < bestGenres.size() + 1; j++)
+			{
+				// Positive values indicate that the second string comes first lexicographically
+				if (bestGenres.at(i).compare(bestGenres.at(j)) > 0)
+					bestGenre = bestGenres.at(j);
+				else
+				// Negative values mean your string object comes first lexicographically.
+					bestGenre = bestGenres.at(i);
+
+				// 0 indicates equality, but that cant be
+			}
+		}
+	}
+	// Now we will look at the list of all availble content and pick one with the genre "bestGenre" that wasnt watched yet
+	Watchable* recommendation = nullptr;
+	std::vector<Watchable*>::const_iterator itS = s.getContent().begin();
+	while (itS != s.getContent().end()) {// Check every show possible
+		std::vector<Watchable*>::iterator itv = std::find_if(get_history().begin(), get_history().end(), *itS);// Is that show is in the history?
+		if (itv == get_history().end()) {// Means that the user didnt watched that, good for us!
+			std::vector<std::string>::iterator itP = std::find_if((*itS)->getTags().begin(), (*itS)->getTags().end(), bestGenre);// Is that show has the famous tag?
+			if (itP != ((*itS)->getTags().end()))// Means that this show has "bestGenre", good for us!
+				recommendation = *itS;// The appropriate show
+		}
+		itS++;
+	}
+	return recommendation;
 }
