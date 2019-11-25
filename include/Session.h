@@ -14,7 +14,7 @@
 
 enum ActionType // List of all the possible actions
 {
-    createuser_A, changeuser_A, deleteuser_A, dupuser_A, content_A, watchhist_A, watch_A, log_A, exit_A, null
+    createUser_A, changeActiveUser_A, deleteUser_A, duplicateUser_A, content_A, watchHistory_A, watch_A, log_A, exit_A, null
 }; //A as Action because some of the name was already used for variables or function
 
 class User;
@@ -39,10 +39,12 @@ public:
     User* getActiveUser() const;
     std::vector<std::string> getAction();
     std::unordered_map<std::string,ActionType> getStringToAction() const;
+    void changeActiveUser(User& other);
+    void addUser(User& user);
+    void deleteUser(std::string toDelete);
 
 protected:
     std::vector<std::string> split(std::string action_in) const; // Function that split the array string into a vector of every word "action"
-
 
 private:
     std::vector<Watchable*> content;
@@ -57,16 +59,15 @@ private:
     /// Map from strings to Action values
     const std::unordered_map<std::string, ActionType> StringToAction =
             {
-                    { "createuser", ActionType::createuser_A },
-                    { "changeuser", ActionType::changeuser_A },
-                    { "deleteuser", ActionType::deleteuser_A },
-                    { "dupuser", ActionType::dupuser_A },
+                    { "createuser", ActionType::createUser_A },
+                    { "changeuser", ActionType::changeActiveUser_A },
+                    { "deleteuser", ActionType::deleteUser_A },
+                    { "dupuser", ActionType::duplicateUser_A },
                     { "content", ActionType::content_A },
-                    { "watchhist", ActionType::watchhist_A },
+                    { "watchhist", ActionType::watchHistory_A },
                     { "watch", ActionType::watch_A },
                     { "log", ActionType::log_A },
                     { "exit", ActionType::exit_A }
             };
-
 };
 #endif

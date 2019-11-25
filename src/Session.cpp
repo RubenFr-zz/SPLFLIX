@@ -1,6 +1,4 @@
 #include "../include/Session.h"
-#include "../include/Watchable.h"
-
 
 //Variables in the class:
 //std::vector<Watchable*> content;
@@ -13,7 +11,7 @@ Session::Session(const std::string &configFilePath) {
     userMap.clear();
     activeUser = nullptr;
     action_in = "";
-    action = {};
+    action.clear();
 
     //read the json file
     std::ifstream i(configFilePath);
@@ -21,7 +19,6 @@ Session::Session(const std::string &configFilePath) {
     i >> j;
     nlohmann::json movies = j["movies"];
     nlohmann::json series = j["tv_series"];
-	
 
     long id = 1;
 
@@ -49,7 +46,7 @@ Session::Session(const std::string &configFilePath) {
         }
         for (int S = 0; S < series[i]["seasons"].size(); S++) {
             for (int E = 1; E <= series[i]["seasons"][S]; E++) {
-                Watchable *episode = new Episode(id, name, length, S+1, E, tags);
+                Watchable *episode = new Episode(id, name, length, S + 1, E, tags);
                 content.push_back(episode);
                 id++;
             }
@@ -58,20 +55,20 @@ Session::Session(const std::string &configFilePath) {
 }
 
 //Destructor
-Session::~Session()
-{
-    for (std::vector<Watchable*>::iterator it = content.begin(); it != content.end(); ++it){
+Session::~Session() {
+    for (std::vector<Watchable *>::iterator it = content.begin(); it != content.end(); ++it) {
         delete *it;
     }
-    for (std::vector<BaseAction*>::iterator it = actionsLog.begin(); it != actionsLog.end(); ++it){
+    for (std::vector<BaseAction *>::iterator it = actionsLog.begin(); it != actionsLog.end(); ++it) {
         delete *it;
     }
     delete activeUser;
 }
 
 //Copy constructor
-Session::Session(const Session &other) : content(other.getContent()), actionsLog(other.getActionsLog()), userMap(other.getUserMap()),
-    activeUser(other.getActiveUser()) {}
+Session::Session(const Session &other) : content(other.getContent()), actionsLog(other.getActionsLog()),
+                                         userMap(other.getUserMap()),
+                                         activeUser(other.getActiveUser()) {}
 
 //Copy assignment operator
 Session &Session::operator=(Session &other) {
@@ -87,65 +84,117 @@ Session &Session::operator=(Session &&other) {
     return *this;
 }
 
-void Session::start()
-{
-    std::cin >> action_in;
-    action = split(action_in);
+void Session::start() {
 
-    if(action.empty()) { std::cout << "No action enterded" << std::endl; }
-    else
-    {
-        ActionType act = ActionType::null;
-        if (getStringToAction().count(action[0]) > 0) { act = getStringToAction().at(action[0]); }
-        switch(act){
-            case(createuser_A):
-				std::cout << "entered in create user" << std::endl;
-                break;
-            case(changeuser_A):
-                break;
-            case(deleteuser_A):
-                break;
-            case(dupuser_A):
-                break;
-            case(watch_A):
-                break;
-            case(content_A):
-                break;
-            case(watchhist_A):
-                break;
-            case(log_A):
-                break;
-            case(exit_A):
-                break;
-            case(null):
-                std::cout << "Action invalid" << std::endl;
+    bool run = true;
+    std::cout << "SPLFLIX is now on!" << std::endl;
+
+    while (run) {
+
+        getline(std::cin, action_in); // same as cin except it read an entire line !
+        action = split(action_in);
+
+        if (action.empty())
+        {
+            std::cout << "No action entered" << std::endl;
+        }else
+        {
+            ActionType act = ActionType::null;
+            if (getStringToAction().count(action[0]) > 0) { act = getStringToAction().at(action[0]); }
+            BaseAction* baseAction;
+
+            switch (act)
+            {
+                case (createUser_A):
+                    baseAction = new CreateUser();
+                    baseAction->act(*this);
+                    actionsLog.push_back(baseAction);
+                    break;
+                case (changeActiveUser_A):
+                    baseAction = new ChangeActiveUser();
+                    baseAction->act(*this);
+                    actionsLog.push_back(baseAction);
+                    break;
+                case (deleteUser_A):
+                    baseAction = new DeleteUser();
+                    baseAction->act(*this);
+                    actionsLog.push_back(baseAction);
+                    break;
+                case (duplicateUser_A):
+                    baseAction = new DuplicateUser();
+                    baseAction->act(*this);
+                    actionsLog.push_back(baseAction);
+                    break;
+                case (watch_A):
+                    baseAction = new Watch();
+                    baseAction->act(*this);
+                    actionsLog.push_back(baseAction);
+//                    NEED TO ADD THE LOOP TO CONTINUE WATCHING
+                    std::cout << "Watching " + activeUser->get_history().back()->toStringShort() << std::endl;
+                    std::cout << "We recommend watching " + activeUser->getRecommendation(*this)->toStringShort() << std::endl;
+
+                    break;
+                case (content_A):
+                    baseAction = new PrintContentList();
+                    baseAction->act(*this);
+                    actionsLog.push_back(baseAction);
+                    break;
+                case (watchHistory_A):
+                    baseAction = new PrintWatchHistory();
+                    baseAction->act(*this);
+                    actionsLog.push_back(baseAction);
+                    break;
+                case (log_A):
+                    baseAction = new PrintActionsLog();
+                    baseAction->act(*this);
+                    actionsLog.push_back(baseAction);
+                    break;
+                case (exit_A):
+                    baseAction = new Exit();
+                    baseAction->act(*this);
+                    actionsLog.push_back(baseAction);
+                    run = false;
+                    break;
+                case (null):
+                    std::cout << "Action invalid" << std::endl;
+            }
         }
+
     }
     return;
 }
 
-//getters
-std::vector<Watchable*> Session::getContent() const { return content;}
-std::vector<BaseAction*> Session::getActionsLog() const { return actionsLog; }
-std::unordered_map<std::string, User*> Session::getUserMap() const { return userMap; }
-User* Session::getActiveUser() const { return activeUser; }
-std::vector<std::string> Session::getAction() { return action; }
-std::unordered_map<std::string,ActionType> Session::getStringToAction() const { return StringToAction; }
 
-std::vector<std::string> Session::split(std::string action_in) const
-{
+
+//getters
+std::vector<Watchable *> Session::getContent() const { return content; }
+
+std::vector<BaseAction *> Session::getActionsLog() const { return actionsLog; }
+
+std::unordered_map<std::string, User *> Session::getUserMap() const { return userMap; }
+
+User *Session::getActiveUser() const { return activeUser; }
+
+std::vector<std::string> Session::getAction() { return action; }
+
+std::unordered_map<std::string, ActionType> Session::getStringToAction() const { return StringToAction; }
+
+std::vector<std::string> Session::split(std::string action_in) const {
     std::istringstream ss(action_in);
     std::vector<std::string> results(std::istream_iterator<std::string>{ss},
                                      std::istream_iterator<std::string>());
     return results;
 }
 
+void Session::changeActiveUser(User& other) { activeUser = &other; }
 
-//getters
-std::vector<Watchable*> Session::getContent() { return content; }
+void Session::addUser(User& user)
+{
+    const std::string name = user.getName();
+    userMap.insert({name, &user});
+}
 
-std::vector<BaseAction*> Session::getActionsLog() { return actionsLog; }
-
-std::unordered_map<std::string, User*> Session::getUserMap() { return userMap; }
-
-User* Session::getActiveUser() { return activeUser; }
+void Session::deleteUser(std::string toDelete)
+{
+    userMap.erase(toDelete);
+}
