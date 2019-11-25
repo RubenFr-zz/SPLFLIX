@@ -5,16 +5,22 @@
 #include <vector>
 #include <iostream>
 #include <cstdio>
+#include "../include/User.h"
 
 
-class Session;		
+class Session;
 
 class Watchable {
 public:
 	Watchable(long id, int length, const std::vector<std::string>& tags);
 	virtual ~Watchable();
 	virtual std::string toString() const = 0;
+    virtual std::string toStringShort() const = 0;
 	virtual Watchable* getNextWatchable(Session&) const = 0;
+	virtual std::string getName() = 0; // Polymorphism !!
+    virtual int getSeason() const = 0; // Polymorphism !!
+    virtual int getEpisode() const = 0; // Polymorphism !!
+
 
 	//getters
 	long getID() const;
@@ -31,8 +37,11 @@ class Movie : public Watchable {
 public:
 	Movie(long id, std::string& name, int length, std::vector<std::string>& tags);
 	virtual std::string toString() const;
+    virtual std::string toStringShort() const;
 	virtual Watchable* getNextWatchable(Session&) const;
-	std::string getName() const;
+	virtual std::string getName();
+    virtual int getSeason() const { return 0; }
+    virtual int getEpisode() const { return 0; }
 private:
 	std::string name;
 };
@@ -42,10 +51,11 @@ class Episode : public Watchable {
 public:
 	Episode(long id, const std::string& seriesName, int length, int season, int episode, const std::vector<std::string>& tags);
 	virtual std::string toString() const;
+    virtual std::string toStringShort() const;
 	virtual Watchable* getNextWatchable(Session&) const;
-	std::string getSeriesName() const;
-	int getSeason() const;
-	int getEpisode() const;
+	virtual std::string getName() ;
+	int getSeason() const override;
+	int getEpisode() const override;
 	long getNextEpisodeId();
 private:
 	std::string seriesName;
