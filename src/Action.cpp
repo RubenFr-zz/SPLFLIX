@@ -50,22 +50,22 @@ void CreateUser::act(Session &sess)
         type_str = action[2];
         Type type = Type::null;
         if (getStringToType().count(type_str) > 0) { type = getStringToType().at(type_str); }
-
+		if (sess.getUserMap().count(name) > 0) { error("A user with the same name already exists"); return; }
         switch (type)
         {
             case(Type::len):
                 user = new LengthRecommenderUser(name);
-                sess.getUserMap().insert({name,user});
+                sess.addUser(*user);
                 complete();
                 break;
             case(Type::rer):
                 user = new RerunRecommenderUser(name);
-                sess.getUserMap().insert({name,user});
+                sess.addUser(*user);
                 complete();
                 break;
             case(Type::gen):
                 user = new GenreRecommenderUser(name);
-                sess.getUserMap().insert({name,user});
+                sess.addUser(*user);
                 complete();
                 break;
             case(Type::null):
@@ -73,11 +73,44 @@ void CreateUser::act(Session &sess)
                 break;
         }
     }
+	return;
 }
 
 std::string CreateUser::toString() const
 {
     std::string str = "CreateUser " + getStatusToString().at(getStatus());
+    if (getStatus() == ActionStatus::ERROR) { str += ": " +getErrorMsg(); }
+    return str;
+}
+
+//-----------ChangeActiveUser class--------------
+
+void ChangeActiveUser::act(Session &sess)
+{
+	std::unordered_map<std::string, User*> users = sess.getUserMap();
+    std::vector<std::string> action = sess.getAction();
+    std::string name;
+
+    if (action.size() != 2)
+    {
+        error("Input not valid to change the active User");  // To create a user 2 words must me entered !
+    }else{
+        name = action[1];
+        if (users.count(name) > 0) 
+		{  
+			sess.changeActiveUser(*users.at(name));
+			complete();
+		}
+		else {
+			error("no user with the name: " + name);
+		}
+    }
+
+}
+
+std::string ChangeActiveUser::toString() const
+{
+    std::string str = "ChangeActiveUser " + getStatusToString().at(getStatus());
     if (getStatus() == ActionStatus::ERROR) { str += ": " +getErrorMsg(); }
     return str;
 }
@@ -93,8 +126,12 @@ void DeleteUser::act(Session &sess)
     }else{
         std::string toDelete = action[1];
         if (users.count(toDelete) > 0) {
-            users.erase(toDelete);
-            complete();
+            if ( users.at(toDelete) == sess.getActiveUser()) { error("Cannot delete the active user");
+            }
+            else {
+                sess.deleteUser(toDelete);
+                complete();
+            }
         }else {
             error("The user doesn't exist");
         }
@@ -109,7 +146,34 @@ std::string DeleteUser::toString() const {
 
 //-----------DuplicateUser class--------------
 
-void DuplicateUser::act(Session &sess) {}
+void DuplicateUser::act(Session &sess)
+{
+    std::vector<std::string> action = sess.getAction();
+    std::unordered_map<std::string, User*> users = sess.getUserMap();
+    if (action.size() != 3)
+    {
+        error("Input not valid to duplicate a User");
+    }
+    else{
+        std::string toCopy = action[1];
+        std::string newUserName = action[2];
+        if (users.count(newUserName) > 0)
+        {
+            error("The user name is already taken");
+        }
+        else if (users.count(toCopy) == 0)
+        {
+            error("The user doesn't exist");
+        }
+        else
+        {
+            User* newUser(users.at(toCopy));
+            newUser->modifName(newUserName);
+            sess.addUser(*newUser);
+            complete();
+        }
+    }
+}
 
 std::string DuplicateUser::toString() const
 {
@@ -140,6 +204,7 @@ std::string PrintContentList::toString() const {
 //-----------PrintWatchHistory class--------------
 
 void PrintWatchHistory::act(Session &sess) {
+    if (sess.getActiveUser() == nullptr) { error("No active User"); return; }
     User *active_user = sess.getActiveUser();
     std::vector<Watchable *> watch_history = active_user->get_history();
 
@@ -151,7 +216,7 @@ void PrintWatchHistory::act(Session &sess) {
             std::cout << tmp->toString();
         }
         complete();
-    }else { error("The User has no history..."); }
+    }else { error("The User has no history"); }
     return;
 }
 
@@ -166,6 +231,26 @@ std::string PrintWatchHistory::toString() const {
 
 void Watch::act(Session &sess) {
 
+    if (sess.getActiveUser() == nullptr) { error("No active User"); return; }
+
+    std::vector<Watchable*> listOfContent = sess.getContent();
+    std::vector<std::string> action = sess.getAction();
+
+    if (action.size() != 2)
+    {
+        error("Input not valid to watch a content");
+    }else{
+        long id = std::stoi(action[1]); //Convert a string to an Int
+        if ( id > listOfContent.size())
+        {
+            error("The content doesn't exist");
+        }else{
+            Watchable* content = listOfContent[id-1];
+            sess.getActiveUser()->watched(*content);
+            complete();
+        }
+    }
+
 }
 
 std::string Watch::toString() const {
@@ -178,7 +263,7 @@ std::string Watch::toString() const {
 void PrintActionsLog::act(Session &sess) {
 
     std::vector<BaseAction*> log = sess.getActionsLog();
-    for (auto it = log.begin(); it != log.end(); ++it) {
+    for (std::vector<BaseAction*>::iterator it = log.begin(); it != log.end(); ++it) {
         BaseAction *action = *it;
         std::string str = action->toString();
         std::cout << str << std::endl;
