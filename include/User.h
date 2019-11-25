@@ -3,8 +3,11 @@
 
 #include <vector>
 #include <string>
+#include <typeinfo>
 #include <unordered_set>
 #include <unordered_map>
+
+#include "../include/Watchable.h"
 
 class Watchable;
 class Session;
@@ -22,10 +25,13 @@ public:
 	virtual Watchable* getRecommendation(Session& s) = 0;
 	std::string getName() const;
 	std::vector<Watchable*> get_history() const;
+	void modifName(std::string other);
+	void watched(Watchable& content);
 protected:
 	std::vector<Watchable*> history;
 private:
-	const std::string name;
+	std::string name;
+	long id;
 
 };
 
