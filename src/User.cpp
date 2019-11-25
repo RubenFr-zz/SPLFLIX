@@ -174,6 +174,7 @@ Watchable* GenreRecommenderUser::getRecommendation(Session& s) {
 			}
 			itS++;
 		}
+		itM++;
 	}
 	return recommendation;
 }
