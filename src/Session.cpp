@@ -9,7 +9,7 @@
 //Constructor
 Session::Session(const std::string &configFilePath) {
     userMap.clear();
-    activeUser = nullptr;
+    activeUser = NULL;
     action_in = "";
     action.clear();
 
@@ -94,17 +94,15 @@ void Session::start() {
         getline(std::cin, action_in); // same as cin except it read an entire line !
         action = split(action_in);
 
-        if (action.empty())
-        {
+        if (action.empty()) {
             std::cout << "No action entered" << std::endl;
-        }else
-        {
+        } else {
             ActionType act = ActionType::null;
             if (getStringToAction().count(action[0]) > 0) { act = getStringToAction().at(action[0]); }
-            BaseAction* baseAction;
+            BaseAction *baseAction;
+            bool watching = false;
 
-            switch (act)
-            {
+            switch (act) {
                 case (createUser_A):
                     baseAction = new CreateUser();
                     baseAction->act(*this);
@@ -126,13 +124,27 @@ void Session::start() {
                     actionsLog.push_back(baseAction);
                     break;
                 case (watch_A):
-                    baseAction = new Watch();
-                    baseAction->act(*this);
-                    actionsLog.push_back(baseAction);
-//                    NEED TO ADD THE LOOP TO CONTINUE WATCHING
-                    std::cout << "Watching " + activeUser->get_history().back()->toStringShort() << std::endl;
-                    std::cout << "We recommend watching " + activeUser->getRecommendation(*this)->toStringShort() << std::endl;
-
+                    watching = true;
+                    while (watching) {
+                        baseAction = new Watch();
+                        baseAction->act(*this);
+                        actionsLog.push_back(baseAction);
+                        if (baseAction->getStatus() == ActionStatus::ERROR) { break; }
+                        std::cout << "Watching " + activeUser->get_history().back()->toStringShort() << std::endl;
+                        std::cout << "We recommend watching ";
+                        if (activeUser->getRecommendation(*this) != nullptr) {
+                            std::cout << activeUser->getRecommendation(*this)->toStringShort() +
+                                         ", continue watching? [y/n]" << std::endl;
+                            std::string response;
+                            std::cin >> response;
+                            if (response == "n") { watching = false; }
+                            else if (response == "y") { continue; }
+                            else {
+                                std::cout << "Non valid entry, watching aborted";
+                                watching = false;
+                            }
+                        } else { std::cout << ": No content recommended" << std::endl; watching = false;}
+                    }
                     break;
                 case (content_A):
                     baseAction = new PrintContentList();
@@ -165,7 +177,6 @@ void Session::start() {
 }
 
 
-
 //getters
 std::vector<Watchable *> Session::getContent() const { return content; }
 
@@ -186,15 +197,13 @@ std::vector<std::string> Session::split(std::string action_in) const {
     return results;
 }
 
-void Session::changeActiveUser(User& other) { activeUser = &other; }
+void Session::changeActiveUser(User &other) { activeUser = &other; }
 
-void Session::addUser(User& user)
-{
+void Session::addUser(User &user) {
     const std::string name = user.getName();
     userMap.insert({name, &user});
 }
 
-void Session::deleteUser(std::string toDelete)
-{
+void Session::deleteUser(std::string toDelete) {
     userMap.erase(toDelete);
 }

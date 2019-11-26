@@ -208,15 +208,17 @@ void PrintWatchHistory::act(Session &sess) {
     User *active_user = sess.getActiveUser();
     std::vector<Watchable *> watch_history = active_user->get_history();
 
-    std::cout << "Watch history for " << active_user->getName() << std::endl;
+    std::cout << "Watch history for: " << active_user->getName() << std::endl;
 
     if (!watch_history.empty()) {
+        long id = 1;
         for (std::vector<Watchable *>::iterator it = watch_history.begin(); it != watch_history.end(); ++it) {
             Watchable *tmp = *it;
-            std::cout << tmp->toString();
+            std::cout << std::to_string(id++) +". "+ tmp->toStringShort() << std::endl;
         }
         complete();
     }else { error("The User has no history"); }
+
     return;
 }
 
@@ -231,7 +233,7 @@ std::string PrintWatchHistory::toString() const {
 
 void Watch::act(Session &sess) {
 
-    if (sess.getActiveUser() == nullptr) { error("No active User"); return; }
+    if (!sess.getActiveUser()) { error("No active User"); return; }  //tmp is NULL
 
     std::vector<Watchable*> listOfContent = sess.getContent();
     std::vector<std::string> action = sess.getAction();

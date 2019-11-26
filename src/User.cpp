@@ -68,19 +68,7 @@ void User::modifName(std::string other) {
 }
 
 void User::watched(Watchable &content) {
-    std::string name = content.getName();
-    std::vector<std::string> tags = content.getTags();
-    Watchable *newContent;
-    if(typeid(&content) == typeid(Movie))
-    {
-        newContent = new Movie(id, name, content.getLength(), tags);
-    }
-    else
-    {
-        newContent = new Episode(id, name, content.getLength(), content.getSeason(), content.getEpisode(), tags);
-    }
-    history.push_back(newContent);
-    id++;
+    history.push_back(&content);
 }
 
 
@@ -100,7 +88,7 @@ Watchable* LengthRecommenderUser::getRecommendation(Session& s) {
 RerunRecommenderUser::RerunRecommenderUser(const std::string& name) : User(name) {}
 
 Watchable* RerunRecommenderUser::getRecommendation(Session& s) {
-	return NULL;
+	return nullptr;
 }
 
 //---------------GenreRecommenderUser class---------------//
