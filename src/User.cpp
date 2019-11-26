@@ -76,12 +76,11 @@ LengthRecommenderUser::LengthRecommenderUser(const std::string& name) : User(nam
 
 Watchable* LengthRecommenderUser::getRecommendation(Session& s) {
 	int sum = 0;
-	for (std::vector<Watchable*>::const_iterator it = get_history().begin(); it != get_history().end(); ++it) {
-		sum += (*it)->getLength();// Im not sure about that, need to check
-	}
+	for (std::vector<Watchable*>::const_iterator it = get_history().begin(); it != get_history().end(); ++it)
+		sum += (*it)->getLength();
 	int size = get_history().size();
 	int avgLen = (int)std::round(sum / size);// To have an integer length
-	Watchable* recommenedShow;// The recommendation
+	Watchable* recommendation = nullptr;// The recommendation
 
 	// Create new vector
 	std::vector<Watchable*>::const_iterator it2 = s.getContent().begin();
@@ -95,9 +94,9 @@ Watchable* LengthRecommenderUser::getRecommendation(Session& s) {
 
 	int min = std::min_element((*lenVec.begin()).second, (*lenVec.end()).second);// Min dis
 	std::vector< std::pair <Watchable*, int>>::const_iterator it3 = std::find_if(lenVec.begin(), lenVec.end(), (*it3).second==min);// find the right pair
-	recommenedShow = (*it3).first;
+	recommendation = (*it3).first;
 	// We need to check if we need to clean memory here!!
-	return recommenedShow;
+	return recommendation;
 }
 
 
