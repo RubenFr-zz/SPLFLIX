@@ -25,11 +25,16 @@ public:
 	virtual Watchable* getRecommendation(Session& s) = 0;
 	std::string getName() const;
 	std::vector<Watchable*> get_history() const;
+
 	void modifName(std::string other);
 	void watched(Watchable& content);
+	int getCycle() const;
+	void setCycle(int value);
 protected:
 	std::vector<Watchable*> history;
 private:
+	const std::string name;
+	int cycle = 0;// For the Rerun recommendation
 	std::string name;
 	long id;
 
