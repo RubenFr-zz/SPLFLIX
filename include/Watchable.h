@@ -18,8 +18,6 @@ public:
     virtual std::string toStringShort() const = 0;
 	virtual Watchable* getNextWatchable(Session&) const = 0;
 	virtual std::string getName() = 0; // Polymorphism !!
-    virtual int getSeason() const = 0; // Polymorphism !!
-    virtual int getEpisode() const = 0; // Polymorphism !!
 
 
 	//getters
@@ -40,8 +38,6 @@ public:
     virtual std::string toStringShort() const;
 	virtual Watchable* getNextWatchable(Session&) const;
 	virtual std::string getName();
-    virtual int getSeason() const { return 0; }
-    virtual int getEpisode() const { return 0; }
 private:
 	std::string name;
 };
@@ -54,8 +50,8 @@ public:
     virtual std::string toStringShort() const;
 	virtual Watchable* getNextWatchable(Session&) const;
 	virtual std::string getName() ;
-	int getSeason() const override;
-	int getEpisode() const override;
+	int getSeason() const;
+	int getEpisode() const;
 	long getNextEpisodeId();
 private:
 	std::string seriesName;
