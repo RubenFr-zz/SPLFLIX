@@ -54,6 +54,11 @@ User& User::operator=(User &&other){
 	return *this;
 }
 
+//Getter
+int User::getCycle() const { return cycle; }
+
+//Setter
+void User::setCycle(int value) { cycle = value; }
 
 std::string User::getName() const {
 	return name;
@@ -102,7 +107,10 @@ Watchable* LengthRecommenderUser::getRecommendation(Session& s) {
 RerunRecommenderUser::RerunRecommenderUser(const std::string& name) : User(name) {}
 
 Watchable* RerunRecommenderUser::getRecommendation(Session& s) {
-	return NULL;
+	Watchable* recommendation = nullptr;
+	recommendation = get_history().at((getCycle() + 1) % get_history().size());// Pointer to the correct show
+	setCycle((getCycle() + 1)%get_history().size());
+	return recommendation;
 }
 
 //---------------GenreRecommenderUser class---------------//
