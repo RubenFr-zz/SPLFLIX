@@ -1,4 +1,5 @@
 #include "../include/User.h"
+#include "../include/Session.h"
 #include <iostream>
 
 //-------------User class--------------//
