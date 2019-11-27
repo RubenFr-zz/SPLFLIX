@@ -52,6 +52,8 @@ private:
     std::unordered_map<std::string,User*> userMap;
     User* activeUser;
 
+    void changeMovie(ActionType type, long id);
+
     std::string action_in; // Action typed in by the user
     std::vector<std::string> action; // Vector of strings that divide each word of action_in
     // (for example if [action_in = CreateUser Amir len] is entered [action = {action_in, Amir, len}]

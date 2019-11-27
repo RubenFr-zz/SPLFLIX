@@ -56,13 +56,19 @@ Session::Session(const std::string &configFilePath) {
 
 //Destructor
 Session::~Session() {
-    for (std::vector<Watchable *>::iterator it = content.begin(); it != content.end(); ++it) {
-        delete *it;
+//    delete activeUser;
+    for(auto it : content) delete it;
+    content.clear();
+    for(auto it : actionsLog) delete it;
+    actionsLog.clear();
+
+    std::vector<std::string> usersName;
+    for(auto it : userMap) usersName.push_back(it.first);
+    for (std::string name : usersName)
+    {
+        delete userMap.at(name);
+        userMap.erase(name);
     }
-    for (std::vector<BaseAction *>::iterator it = actionsLog.begin(); it != actionsLog.end(); ++it) {
-        delete *it;
-    }
-    delete activeUser;
 }
 
 //Copy constructor
@@ -76,7 +82,9 @@ Session &Session::operator=(Session &other) {
 }
 
 //Move constructor
-Session::Session(Session &&other) {}
+Session::Session(Session &&other) {
+
+}
 
 //Move assignment operator
 Session &Session::operator=(Session &&other) {
@@ -87,11 +95,16 @@ Session &Session::operator=(Session &&other) {
 void Session::start() {
 
     bool run = true;
-    std::cout << "SPLFLIX is now on!" << std::endl;
+    std::cout << "\nSPLFLIX is now on!" << std::endl;
+
+    std::string name_default = "default";
+    User *defaultUser = new LengthRecommenderUser(name_default);
+    userMap.insert({name_default, defaultUser});
+    activeUser = defaultUser;
 
     while (run) {
 
-        getline(std::cin, action_in); // same as cin except it read an entire line !
+		getline(std::cin, action_in); // same as cin except it read an entire line !
         action = split(action_in);
 
         if (action.empty()) {
@@ -132,15 +145,15 @@ void Session::start() {
                         if (baseAction->getStatus() == ActionStatus::ERROR) { break; }
                         std::cout << "Watching " + activeUser->get_history().back()->toStringShort() << std::endl;
                         std::cout << "We recommend watching ";
-                        if (activeUser->getRecommendation(*this) != nullptr) {
-                            std::cout << activeUser->getRecommendation(*this)->toStringShort() +
-                                         ", continue watching? [y/n]" << std::endl;
+                        Watchable* recommendation = activeUser->getRecommendation(*this);
+                        if ( recommendation != nullptr) {
+                            std::cout << recommendation->toStringShort() + ", continue watching? [y/n]" << std::endl;
                             std::string response;
-                            std::cin >> response;
+                            getline(std::cin, response);
                             if (response == "n") { watching = false; }
-                            else if (response == "y") { continue; }
+                            else if (response == "y") { changeMovie(act, recommendation->getID()); }
                             else {
-                                std::cout << "Non valid entry, watching aborted";
+                                std::cout << "Non valid entry, watching aborted" << std::endl;
                                 watching = false;
                             }
                         } else { std::cout << ": No content recommended" << std::endl; watching = false;}
@@ -171,7 +184,6 @@ void Session::start() {
                     std::cout << "Action invalid" << std::endl;
             }
         }
-
     }
     return;
 }
@@ -205,5 +217,11 @@ void Session::addUser(User &user) {
 }
 
 void Session::deleteUser(std::string toDelete) {
+    delete userMap.at(toDelete);
     userMap.erase(toDelete);
+}
+
+void Session::changeMovie(ActionType type, long id) {
+    if (type != ActionType::watch_A) return;
+    action[1] = std::to_string(id);
 }

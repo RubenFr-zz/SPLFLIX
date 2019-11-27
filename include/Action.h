@@ -21,6 +21,7 @@ enum class Type{
 class BaseAction {
 public:
 	BaseAction();
+	~BaseAction();
 	ActionStatus getStatus() const;
 	virtual void act(Session& sess) = 0;
 	virtual std::string toString() const = 0;
@@ -32,7 +33,6 @@ public:
 
 	//Getters
     const std::unordered_map<std::string, Type> getStringToType() const;
-//    const std::unordered_map<Type, std::string> getTypeToString() const;
     const std::unordered_map<ActionStatus , std::string> getStatusToString() const;
 
 private:
@@ -46,14 +46,6 @@ private:
                     { "rer", Type::rer },
                     { "gen", Type::gen}
             };
-
-/// Map from Type values to strings
-//    const std::unordered_map<Type, std::string> TypeToString =
-//            {
-//                    { Type::len, "len" },
-//                    { Type::rer, "rer" },
-//                    { Type::gen, "gen"}
-//            };
 
 /// Map from ActionStatus values to strings
     const std::unordered_map<ActionStatus , std::string> StatusToString =

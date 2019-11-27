@@ -5,9 +5,6 @@
 //Constructor
 Watchable::Watchable(long id, int length, const std::vector<std::string> &tags) : id(id), length(length), tags(tags) {}
 
-//Destructor
-Watchable::~Watchable() {}
-
 //getters
 long Watchable::getID() const { return id; }
 
@@ -29,7 +26,7 @@ std::string Movie::toString() const
     str += " minutes ";
     str += "[";
     std::vector<std::string> tags = getTags();
-    for (std::vector<std::string>::iterator it = tags.begin(); it != tags.end(); ++it)
+    for (auto it = tags.begin(); it != tags.end(); ++it)
     {
         str += *it;
         if (*it != tags.back()) { str += ", "; }

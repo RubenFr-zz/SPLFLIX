@@ -6,6 +6,10 @@ BaseAction::BaseAction() : status(ActionStatus::PENDING) {
     errorMsg = "";
 }
 
+BaseAction::~BaseAction() {
+
+}
+
 ActionStatus BaseAction::getStatus() const {
     return status;
 }
@@ -30,8 +34,8 @@ void BaseAction::changeErrorMsg(const std::string& msg)
 
 //Getters---------------------------------
 const std::unordered_map<std::string, Type> BaseAction::getStringToType() const { return StringToType; };
-//const std::unordered_map<Type, std::string> BaseAction::getTypeToString() const { return TypeToString; };
 const std::unordered_map<ActionStatus, std::string> BaseAction::getStatusToString() const { return StatusToString; }
+
 
 //-----------CreateUser class--------------
 
@@ -40,7 +44,7 @@ void CreateUser::act(Session &sess)
     std::vector<std::string> action = sess.getAction(); //get the action entered
     std::string name; // name of the new user to be
     std::string type_str; // Recommendation picked by the user
-    User* user; // Create a new user yet to determine what type it will be of
+    User *user; // Create a new user yet to determine what type it will be of
 
     if (action.size() != 3)
     {
@@ -105,7 +109,8 @@ void ChangeActiveUser::act(Session &sess)
 			error("no user with the name: " + name);
 		}
     }
-
+    users.clear();
+    action.clear();
 }
 
 std::string ChangeActiveUser::toString() const
@@ -172,6 +177,8 @@ void DuplicateUser::act(Session &sess)
             sess.addUser(*newUser);
             complete();
         }
+        action.clear();
+        users.clear();
     }
 }
 
@@ -208,17 +215,16 @@ void PrintWatchHistory::act(Session &sess) {
     User *active_user = sess.getActiveUser();
     std::vector<Watchable *> watch_history = active_user->get_history();
 
-    std::cout << "Watch history for: " << active_user->getName() << std::endl;
 
     if (!watch_history.empty()) {
+        std::cout << "Watch history for: " << active_user->getName() << std::endl;
         long id = 1;
         for (std::vector<Watchable *>::iterator it = watch_history.begin(); it != watch_history.end(); ++it) {
             Watchable *tmp = *it;
-            std::cout << std::to_string(id++) +". "+ tmp->toStringShort() << std::endl;
+            std::cout << std::to_string(id++) + ". " + tmp->toStringShort() << std::endl;
         }
-        complete();
-    }else { error("The User has no history"); }
-
+    }
+    complete();
     return;
 }
 
@@ -265,7 +271,7 @@ std::string Watch::toString() const {
 void PrintActionsLog::act(Session &sess) {
 
     std::vector<BaseAction*> log = sess.getActionsLog();
-    for (std::vector<BaseAction*>::iterator it = log.begin(); it != log.end(); ++it) {
+    for (std::vector<BaseAction*>::iterator it = log.end()-1; it != log.begin()-1; --it) {
         BaseAction *action = *it;
         std::string str = action->toString();
         std::cout << str << std::endl;

@@ -13,7 +13,6 @@ class Session;
 class Watchable {
 public:
 	Watchable(long id, int length, const std::vector<std::string>& tags);
-	virtual ~Watchable();
 	virtual std::string toString() const = 0;
     virtual std::string toStringShort() const = 0;
 	virtual Watchable* getNextWatchable(Session&) const = 0;

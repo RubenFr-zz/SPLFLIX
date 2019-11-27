@@ -4,17 +4,20 @@
 #include <vector>
 #include <string>
 #include <typeinfo>
+#include <algorithm>
+#include <iostream>
 #include <unordered_set>
 #include <unordered_map>
 
 #include "../include/Watchable.h"
+#include "../include/Session.h"
 
 class Watchable;
 class Session;
 
 class User {
 public:
-	//User();
+//	CONSTRUCTORS
 	User(const std::string& name);
 	~User();
 	User(const User& other);
@@ -25,16 +28,25 @@ public:
 	virtual Watchable* getRecommendation(Session& s) = 0;
 	std::string getName() const;
 	std::vector<Watchable*> get_history() const;
-
 	void modifName(std::string other);
 	void watched(Watchable& content);
-	int getCycle() const;
-	void setCycle(int value);
+
+    template<class InputIterator, class T>
+    InputIterator find (InputIterator first, InputIterator last, const T& val)
+    {
+        while (first!=last) {
+            if (*first==val) return first;
+            ++first;
+        }
+        return last;
+    }
+
+
+
 protected:
+    bool nextEpisode(Session& s) ;
 	std::vector<Watchable*> history;
 private:
-	const std::string name;
-	int cycle = 0;// For the Rerun recommendation
 	std::string name;
 	long id;
 
@@ -46,6 +58,7 @@ public:
 	LengthRecommenderUser(const std::string& name);
 	virtual Watchable* getRecommendation(Session& s);
 private:
+    int getAvgLen() const;
 };
 
 class RerunRecommenderUser : public User {
@@ -53,6 +66,7 @@ public:
 	RerunRecommenderUser(const std::string& name);
 	virtual Watchable* getRecommendation(Session& s);
 private:
+    int cycle;
 };
 
 class GenreRecommenderUser : public User {
@@ -60,6 +74,7 @@ public:
 	GenreRecommenderUser(const std::string& name);
 	virtual Watchable* getRecommendation(Session& s);
 private:
+    std::unordered_map<std::string, int> initLoveMap(std::vector<Watchable *> &content) const;
 };
 
 #endif
