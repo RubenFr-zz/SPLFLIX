@@ -271,7 +271,7 @@ std::string Watch::toString() const {
 void PrintActionsLog::act(Session &sess) {
 
     std::vector<BaseAction*> log = sess.getActionsLog();
-    for (std::vector<BaseAction*>::iterator it = log.end()-1; it != log.begin()-1; --it) {
+    for (std::vector<BaseAction*>::reverse_iterator it = log.rbegin(); it != log.rend(); ++it) {
         BaseAction *action = *it;
         std::string str = action->toString();
         std::cout << str << std::endl;
