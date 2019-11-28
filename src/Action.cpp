@@ -6,9 +6,7 @@ BaseAction::BaseAction() : status(ActionStatus::PENDING) {
     errorMsg = "";
 }
 
-BaseAction::~BaseAction() {
-
-}
+BaseAction::~BaseAction() = default;
 
 ActionStatus BaseAction::getStatus() const {
     return status;
@@ -18,9 +16,9 @@ void BaseAction::complete() {
     status = ActionStatus::COMPLETED;
 }
 
-void BaseAction::error(const std::string &errorMsg) {
+void BaseAction::error(const std::string &Msg) {
     status = ActionStatus::ERROR;
-    changeErrorMsg(errorMsg);
+    changeErrorMsg(Msg);
 }
 
 std::string BaseAction::getErrorMsg() const {
@@ -33,8 +31,8 @@ void BaseAction::changeErrorMsg(const std::string& msg)
 }
 
 //Getters---------------------------------
-const std::unordered_map<std::string, Type> BaseAction::getStringToType() const { return StringToType; };
-const std::unordered_map<ActionStatus, std::string> BaseAction::getStatusToString() const { return StatusToString; }
+std::unordered_map<std::string, Type> BaseAction::getStringToType() const { return StringToType; };
+std::unordered_map<ActionStatus, std::string> BaseAction::getStatusToString() const { return StatusToString; }
 
 
 //-----------CreateUser class--------------
@@ -87,6 +85,11 @@ std::string CreateUser::toString() const
     return str;
 }
 
+BaseAction *CreateUser::clone() {
+    BaseAction *toClone = new CreateUser(*this);
+    return toClone;
+}
+
 //-----------ChangeActiveUser class--------------
 
 void ChangeActiveUser::act(Session &sess)
@@ -120,6 +123,11 @@ std::string ChangeActiveUser::toString() const
     return str;
 }
 
+BaseAction *ChangeActiveUser::clone() {
+    BaseAction *toClone = new ChangeActiveUser(*this);
+    return toClone;
+}
+
 //-----------DeleteUser class--------------
 void DeleteUser::act(Session &sess)
 {
@@ -147,6 +155,11 @@ std::string DeleteUser::toString() const {
     std::string str = "DeleteUser " + getStatusToString().at(getStatus());
     if (getStatus() == ActionStatus::ERROR) { str += ": " +getErrorMsg(); }
     return str;
+}
+
+BaseAction *DeleteUser::clone() {
+    BaseAction *toClone = new DeleteUser(*this);
+    return toClone;
 }
 
 //-----------DuplicateUser class--------------
@@ -189,23 +202,31 @@ std::string DuplicateUser::toString() const
     return str;
 }
 
+BaseAction *DuplicateUser::clone() {
+    BaseAction *toClone = new DuplicateUser(*this);
+    return toClone;
+}
+
 //-----------PrintContentList class--------------
 
 void PrintContentList::act(Session &sess) {
     std::vector<Watchable *> content = sess.getContent();
 
-    for (auto it = content.begin(); it != content.end(); ++it) {
-        Watchable *tmp = *it;
+    for (auto tmp : content) {
         std::cout << tmp->toString();
     }
     complete();
-    return;
 }
 
 std::string PrintContentList::toString() const {
     std::string str = "PrintContentList " + getStatusToString().at(getStatus());
     if (getStatus() == ActionStatus::ERROR) { str += ": " + getErrorMsg(); }
     return str;
+}
+
+BaseAction *PrintContentList::clone() {
+    BaseAction *toClone = new PrintContentList(*this);
+    return toClone;
 }
 
 //-----------PrintWatchHistory class--------------
@@ -219,7 +240,7 @@ void PrintWatchHistory::act(Session &sess) {
     if (!watch_history.empty()) {
         std::cout << "Watch history for: " << active_user->getName() << std::endl;
         long id = 1;
-        for (std::vector<Watchable *>::iterator it = watch_history.begin(); it != watch_history.end(); ++it) {
+        for (auto it = watch_history.begin(); it != watch_history.end(); ++it) {
             Watchable *tmp = *it;
             std::cout << std::to_string(id++) + ". " + tmp->toStringShort() << std::endl;
         }
@@ -232,6 +253,11 @@ std::string PrintWatchHistory::toString() const {
     std::string str = "PrintWatchHistory " + getStatusToString().at(getStatus());
     if (getStatus() == ActionStatus::ERROR) { str += ": " + getErrorMsg(); }
     return str;
+}
+
+BaseAction *PrintWatchHistory::clone() {
+    BaseAction *toClone = new PrintWatchHistory(*this);
+    return toClone;
 }
 
 
@@ -267,23 +293,32 @@ std::string Watch::toString() const {
     return str;
 }
 
+BaseAction *Watch::clone() {
+    BaseAction *toClone = new Watch(*this);
+    return toClone;
+}
+
 //-----------PrintActionsLog class-----------
 void PrintActionsLog::act(Session &sess) {
 
     std::vector<BaseAction*> log = sess.getActionsLog();
-    for (std::vector<BaseAction*>::reverse_iterator it = log.rbegin(); it != log.rend(); ++it) {
+    for (auto it = log.rbegin(); it != log.rend(); ++it) {
         BaseAction *action = *it;
         std::string str = action->toString();
         std::cout << str << std::endl;
     }
     complete();
-    return;
 }
 
 std::string PrintActionsLog::toString() const {
     std::string str = "PrintActionsLog " + getStatusToString().at(getStatus());
     if (getStatus() == ActionStatus::ERROR) { str += ": " +getErrorMsg(); }
     return str;
+}
+
+BaseAction *PrintActionsLog::clone() {
+    BaseAction *toClone = new PrintActionsLog(*this);
+    return toClone;
 }
 
 //-----------Exit class--------------
@@ -294,4 +329,9 @@ std::string Exit::toString() const {
     std::string str = "Exit " + getStatusToString().at(getStatus());
     if (getStatus() == ActionStatus::ERROR) { str += ": " +getErrorMsg(); }
     return str;;
+}
+
+BaseAction *Exit::clone() {
+    BaseAction *toClone = new Exit(*this);
+    return toClone;
 }

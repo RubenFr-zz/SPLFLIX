@@ -41,10 +41,10 @@ public:
     std::unordered_map<std::string,ActionType> getStringToAction() const;
     void changeActiveUser(User& other);
     void addUser(User& user);
-    void deleteUser(std::string toDelete);
+    void deleteUser(const std::string& toDelete);
 
 protected:
-    std::vector<std::string> split(std::string action_in) const; // Function that split the array string into a vector of every word "action"
+    std::vector<std::string> split(std::string string) const; // Function that split the array string into a vector of every word "action"
 
 private:
     std::vector<Watchable*> content;

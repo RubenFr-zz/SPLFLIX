@@ -17,6 +17,8 @@ std::vector<std::string> Watchable::getTags() const { return tags; }
 Movie::Movie(long id, std::string &name, int length, std::vector<std::string> &tags) :
         Watchable(id, length, tags), name(name) {}
 
+//Movie::Movie(const Movie &other) : Watchable(other.getID(), other.getLength(), other.getTags()), name(other.getName()) {}
+
 std::string Movie::toString() const
 {
     std::string str = "";
@@ -44,8 +46,16 @@ Watchable *Movie::getNextWatchable(Session &) const {
     return nullptr;
 }
 
-std::string Movie::getName() { return name; }
+std::string Movie::getName() const { return name; }
 
+Watchable *Movie::clone() {
+    Watchable *toClone = new Movie(*this);
+    return toClone;
+}
+
+//Movie::Movie(const Movie &other) : Watchable(other.getID(), other.getLength(), other.getTags()){
+//    name = other.getName();
+//}
 
 //-------------Episode class---------------
 Episode::Episode(long id, const std::string &seriesName, int length, int season, int episode,
@@ -69,7 +79,7 @@ std::string Episode::toString() const {
     str += " minutes ";
     str += "[";
     std::vector<std::string> tags = getTags();
-    for (std::vector<std::string>::iterator it = tags.begin(); it != tags.end(); ++it)
+    for (auto it = tags.begin(); it != tags.end(); ++it)
     {
         str += *it;
         if (*it != tags.back()) { str += ", "; }
@@ -93,8 +103,18 @@ Watchable *Episode::getNextWatchable(Session &) const {
 }
 
 // Getters
-std::string Episode::getName() { return seriesName; }
+std::string Episode::getName() const { return seriesName; }
 int Episode::getSeason() const { return season; }
 int Episode::getEpisode() const { return episode; }
-long Episode::getNextEpisodeId() { return nextEpisodeId; }
+
+Watchable *Episode::clone() {
+    Watchable *toClone = new Episode(*this);
+    return toClone;
+}
+
+//Episode::Episode(const Episode &other) : Watchable(other.getID(), other.getLength(), other.getTags()), seriesName(other.getName()){
+//    episode = other.getEpisode();
+//    season = other.getSeason();
+//    nextEpisodeId = 0;
+//}
 

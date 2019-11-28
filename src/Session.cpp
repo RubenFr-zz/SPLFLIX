@@ -9,16 +9,16 @@
 //Constructor
 Session::Session(const std::string &configFilePath) {
     userMap.clear();
-    activeUser = NULL;
+    activeUser = nullptr;
     action_in = "";
     action.clear();
 
     //read the json file
-    std::ifstream i(configFilePath);
-    nlohmann::json j;
-    i >> j;
-    nlohmann::json movies = j["movies"];
-    nlohmann::json series = j["tv_series"];
+    std::ifstream stream(configFilePath);
+    nlohmann::json json;
+    stream >> json;
+    nlohmann::json movies = json["movies"];
+    nlohmann::json series = json["tv_series"];
 
     long id = 1;
 
@@ -27,6 +27,7 @@ Session::Session(const std::string &configFilePath) {
         std::string name = movies[i]["name"];
         int length = movies[i]["length"];
 
+        tags.reserve(movies[i]["tags"].size());
         for (int j = 0; j < movies[i]["tags"].size(); j++) {
             tags.push_back(movies[i]["tags"][j]);
         }
@@ -41,6 +42,7 @@ Session::Session(const std::string &configFilePath) {
         std::string name = series[i]["name"];
         int length = series[i]["episode_length"];
 
+        tags.reserve(series[i]["tags"].size());
         for (int j = 0; j < series[i]["tags"].size(); j++) {
             tags.push_back(series[i]["tags"][j]);
         }
@@ -72,9 +74,19 @@ Session::~Session() {
 }
 
 //Copy constructor
-Session::Session(const Session &other) : content(other.getContent()), actionsLog(other.getActionsLog()),
-                                         userMap(other.getUserMap()),
-                                         activeUser(other.getActiveUser()) {}
+Session::Session(const Session &other) {
+    std::vector<Watchable *> otherContent = other.getContent();
+    for (auto show : otherContent) content.push_back(show->clone());
+    std::vector<BaseAction *> otherActions = other.getActionsLog();
+    for (auto act : otherActions) actionsLog.push_back(act->clone());
+    std::unordered_map<std::string,User*> otherUsers = other.getUserMap();
+    for (auto user : otherUsers)
+    {
+        User* cloneUser = user.second->clone();
+        userMap.insert({cloneUser->getName(), cloneUser});
+    }
+    activeUser = userMap.at(other.getActiveUser()->getName());
+}
 
 //Copy assignment operator
 Session &Session::operator=(Session &other) {
@@ -98,9 +110,11 @@ void Session::start() {
     std::cout << "\nSPLFLIX is now on!" << std::endl;
 
     std::string name_default = "default";
-    User *defaultUser = new LengthRecommenderUser(name_default);
-    userMap.insert({name_default, defaultUser});
-    activeUser = defaultUser;
+    if (userMap.count(name_default) == 0) {
+        User *defaultUser = new LengthRecommenderUser(name_default);
+        userMap.insert({name_default, defaultUser});
+        activeUser = defaultUser;
+    }
 
     while (run) {
 
@@ -185,7 +199,6 @@ void Session::start() {
             }
         }
     }
-    return;
 }
 
 
@@ -202,8 +215,8 @@ std::vector<std::string> Session::getAction() { return action; }
 
 std::unordered_map<std::string, ActionType> Session::getStringToAction() const { return StringToAction; }
 
-std::vector<std::string> Session::split(std::string action_in) const {
-    std::istringstream ss(action_in);
+std::vector<std::string> Session::split(std::string string) const {
+    std::istringstream ss(string);
     std::vector<std::string> results(std::istream_iterator<std::string>{ss},
                                      std::istream_iterator<std::string>());
     return results;
@@ -216,7 +229,7 @@ void Session::addUser(User &user) {
     userMap.insert({name, &user});
 }
 
-void Session::deleteUser(std::string toDelete) {
+void Session::deleteUser(const std::string& toDelete) {
     delete userMap.at(toDelete);
     userMap.erase(toDelete);
 }

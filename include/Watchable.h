@@ -16,7 +16,8 @@ public:
 	virtual std::string toString() const = 0;
     virtual std::string toStringShort() const = 0;
 	virtual Watchable* getNextWatchable(Session&) const = 0;
-	virtual std::string getName() = 0; // Polymorphism !!
+	virtual std::string getName() const = 0; // Polymorphism !!
+	virtual Watchable* clone() = 0; //visitor pattern
 
 
 	//getters
@@ -33,10 +34,12 @@ private:
 class Movie : public Watchable {
 public:
 	Movie(long id, std::string& name, int length, std::vector<std::string>& tags);
+//    Movie(const Movie& other);
 	virtual std::string toString() const;
     virtual std::string toStringShort() const;
 	virtual Watchable* getNextWatchable(Session&) const;
-	virtual std::string getName();
+	virtual std::string getName() const;
+    virtual Watchable* clone();
 private:
 	std::string name;
 };
@@ -45,13 +48,14 @@ private:
 class Episode : public Watchable {
 public:
 	Episode(long id, const std::string& seriesName, int length, int season, int episode, const std::vector<std::string>& tags);
+//    Episode(const Episode& other);
 	virtual std::string toString() const;
     virtual std::string toStringShort() const;
 	virtual Watchable* getNextWatchable(Session&) const;
-	virtual std::string getName() ;
+	virtual std::string getName() const;
 	int getSeason() const;
 	int getEpisode() const;
-	long getNextEpisodeId();
+    virtual Watchable* clone();
 private:
 	std::string seriesName;
 	int season;
