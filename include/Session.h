@@ -46,15 +46,13 @@ public:
 
 protected:
     std::vector<std::string> split(std::string string) const; // Function that split the array string into a vector of every word "action"
+    void changeMovie(ActionType type, long id);
 
 private:
     std::vector<Watchable*> content;
     std::vector<BaseAction*> actionsLog;
     std::unordered_map<std::string,User*> userMap;
     User* activeUser;
-
-    void changeMovie(ActionType type, long id);
-
     std::string action_in; // Action typed in by the user
     std::vector<std::string> action; // Vector of strings that divide each word of action_in
     // (for example if [action_in = CreateUser Amir len] is entered [action = {action_in, Amir, len}]

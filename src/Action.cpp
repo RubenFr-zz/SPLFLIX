@@ -2,9 +2,7 @@
 
 //-----------BaseAction class--------------
 
-BaseAction::BaseAction() : status(ActionStatus::PENDING) {
-    errorMsg = "";
-}
+BaseAction::BaseAction() : errorMsg(), status(ActionStatus::PENDING) {}
 
 BaseAction::~BaseAction() = default;
 
@@ -275,7 +273,7 @@ void Watch::act(Session &sess) {
         error("Input not valid to watch a content");
     }else{
         long id = std::stoi(action[1]); //Convert a string to an Int
-        if ( id > listOfContent.size())
+        if ( (unsigned) id > listOfContent.size())
         {
             error("The content doesn't exist");
         }else{

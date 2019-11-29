@@ -1,17 +1,8 @@
 #include "../include/Session.h"
 
-//Variables in the class:
-//std::vector<Watchable*> content;
-//std::vector<BaseAction*> actionsLog;
-//std::unordered_map<std::string, User*> userMap;
-//User* activeUser;
-
 //Constructor
-Session::Session(const std::string &configFilePath) {
-    std::cout << "Constructor called" << std::endl;
+Session::Session(const std::string &configFilePath) : content(), actionsLog(), userMap(), activeUser(), action_in(), action() {
     userMap.clear();
-    activeUser = nullptr;
-    action_in = "";
     action.clear();
 
     //read the json file
@@ -24,32 +15,32 @@ Session::Session(const std::string &configFilePath) {
 
     long id = 1;
 
-    for (int i = 0; i < movies.size(); i++) {
+    for (auto & movie : movies) {
         std::vector<std::string> tags;
-        std::string name = movies[i]["name"];
-        int length = movies[i]["length"];
+        std::string name = movie["name"];
+        int length = movie["length"];
 
-        tags.reserve(movies[i]["tags"].size());
-        for (int j = 0; j < movies[i]["tags"].size(); j++) {
-            tags.push_back(movies[i]["tags"][j]);
+        tags.reserve(movie["tags"].size());
+        for (auto & tag : movie["tags"]) {
+            tags.push_back(tag);
         }
 
-        Watchable *movie = new Movie(id, name, length, tags);
-        content.push_back(movie);
+        Watchable *newMovie = new Movie(id, name, length, tags);
+        content.push_back(newMovie);
         id++;
     }
 
-    for (int i = 0; i < series.size(); i++) {
+    for (auto & show : series) {
         std::vector<std::string> tags;
-        std::string name = series[i]["name"];
-        int length = series[i]["episode_length"];
+        std::string name = show["name"];
+        int length = show["episode_length"];
 
-        tags.reserve(series[i]["tags"].size());
-        for (int j = 0; j < series[i]["tags"].size(); j++) {
-            tags.push_back(series[i]["tags"][j]);
+        tags.reserve(show["tags"].size());
+        for (auto & tag : show["tags"]) {
+            tags.push_back(tag);
         }
-        for (int S = 0; S < series[i]["seasons"].size(); S++) {
-            for (int E = 1; E <= series[i]["seasons"][S]; E++) {
+        for (unsigned int S = 0; S < show["seasons"].size(); S++) {
+            for (unsigned int E = 1; E <= show["seasons"][S]; E++) {
                 Watchable *episode = new Episode(id, name, length, S + 1, E, tags);
                 content.push_back(episode);
                 id++;
@@ -60,15 +51,14 @@ Session::Session(const std::string &configFilePath) {
 
 //Destructor
 Session::~Session() {
-//    delete activeUser;
     for(auto it : content) delete it;
     content.clear();
     for(auto it : actionsLog) delete it;
     actionsLog.clear();
 
     std::vector<std::string> usersName;
-    for(auto it : userMap) usersName.push_back(it.first);
-    for (std::string name : usersName)
+    for(const auto& it : userMap) usersName.push_back(it.first);
+    for (const std::string& name : usersName)
     {
         delete userMap.at(name);
         userMap.erase(name);
@@ -77,9 +67,8 @@ Session::~Session() {
 
 //Copy constructor
 Session::Session(const Session &other) :    content(), actionsLog(), userMap(), activeUser(),
-                                            action(other.action), action_in(other.action_in),
-                                            StringToAction(other.StringToAction){
-    std::cout << "Copy constructor called" << std::endl;
+                                            action_in(other.action_in), action(other.action),
+                                            StringToAction(other.StringToAction) {
     std::vector<Watchable *> otherContent = other.content;
     for (auto show : otherContent) content.push_back(show->clone());
     std::vector<BaseAction *> otherActions = other.actionsLog;
@@ -122,41 +111,24 @@ Session& Session::operator=(const Session &other) {
 }
 
 //Move constructor
-Session::Session(Session &&other) : content(other.content), actionsLog(other.actionsLog),
-                                    userMap(other.userMap), activeUser(other.activeUser),
-                                    action(other.action), action_in(other.action_in),
-                                    StringToAction(other.StringToAction){
-    std::cout << "Move constructor called" << std::endl;
-    auto otherContent = other.content;
-    for ( auto show : otherContent) show = nullptr;
-    auto otherLog = other.actionsLog;
-    for ( auto log : otherLog) log = nullptr;
-    auto otherUsers = other.userMap;
-    for ( auto user : otherLog) user = nullptr;
-    other.activeUser = nullptr;
-}
+Session::Session(Session &&other) : content(std::move(other.content)), actionsLog(std::move(other.actionsLog)),
+                                    userMap(std::move(other.userMap)), activeUser(std::move(other.activeUser)),
+                                    action_in(std::move(other.action_in)), action(std::move(other.action)),
+                                    StringToAction(std::move(other.StringToAction)) {}
 
 //Move assignment operator
 Session &Session::operator=(Session &&other) {
-    std::cout << "Move assignment called" << std::endl;
     if(this != &other)
     {
         delete this;
 
-        content = other.content;
-        actionsLog = other.actionsLog;
-        userMap = other.userMap;
-        activeUser = other.activeUser;
-        action = other.action;
-        action_in = other.action_in;
-        StringToAction = other.StringToAction;
-
-        auto otherContent = other.content;
-        for ( auto show : otherContent) show = nullptr;
-        auto otherLog = other.actionsLog;
-        for ( auto log : otherLog) log = nullptr;
-        auto otherUsers = other.userMap;
-        for ( auto user : otherLog) user = nullptr;
+        content = std::move(other.content);
+        actionsLog = std::move(other.actionsLog);
+        userMap = std::move(other.userMap);
+        activeUser = std::move(other.activeUser);
+        action = std::move(other.action);
+        action_in = std::move(other.action_in);
+        StringToAction = std::move(other.StringToAction);
     }
     return *this;
 }

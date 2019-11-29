@@ -3,9 +3,7 @@
 //-------------User class--------------//
 
 //Constructor
-User::User(const std::string &name) : name(name) {
-    id = 1;
-}
+User::User(const std::string &name) : history(), name(name), id(1) {}
 
 //Destructor
 User::~User() {
@@ -14,7 +12,7 @@ User::~User() {
 }
 
 //Copy Constructor
-User::User(const User &other) : name(other.getName()) {
+User::User(const User &other) : history(), name(other.getName()), id(1) {
     auto otherHist = other.get_history();
     for (auto show : otherHist) {
         Watchable *toClone = show->clone();
@@ -134,7 +132,7 @@ User *LengthRecommenderUser::clone() {
 //---------------RerunRecommenderUser class---------------//
 
 //Constructor
-RerunRecommenderUser::RerunRecommenderUser(const std::string &name) : User(name) { cycle = -1; }
+RerunRecommenderUser::RerunRecommenderUser(const std::string &name) : User(name), cycle(-1) {}
 
 Watchable *RerunRecommenderUser::getRecommendation(Session &s) {
 
