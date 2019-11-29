@@ -323,7 +323,7 @@ BaseAction *PrintActionsLog::clone() {
 
 //-----------Exit class--------------
 
-void Exit::act(Session &sess) {}
+void Exit::act(Session &sess) { complete(); }
 
 std::string Exit::toString() const {
     std::string str = "Exit " + getStatusToString().at(getStatus());
