@@ -26,7 +26,7 @@ public:
 	Session(const std::string& configFilePath); //Constructor
 	~Session();	//Destructor
 	Session(const Session& other); //Copy constructor
-	Session& operator=(Session& other); //Copy assignment operator
+	Session& operator=(const Session& other); //Copy assignment operator
 	Session(Session&& other); //Move constructor
 	Session& operator=(Session&& other); //Move assignment operator
 
@@ -37,11 +37,12 @@ public:
     std::vector<BaseAction*> getActionsLog() const;
     std::unordered_map<std::string, User*> getUserMap() const;
     User* getActiveUser() const;
-    std::vector<std::string> getAction();
+    std::vector<std::string> getAction() const;
     std::unordered_map<std::string,ActionType> getStringToAction() const;
     void changeActiveUser(User& other);
     void addUser(User& user);
     void deleteUser(const std::string& toDelete);
+//    std::string getActionIn() const;
 
 protected:
     std::vector<std::string> split(std::string string) const; // Function that split the array string into a vector of every word "action"
@@ -59,7 +60,7 @@ private:
     // (for example if [action_in = CreateUser Amir len] is entered [action = {action_in, Amir, len}]
 
     /// Map from strings to Action values
-    const std::unordered_map<std::string, ActionType> StringToAction =
+    std::unordered_map<std::string, ActionType> StringToAction =
             {
                     { "createuser", ActionType::createUser_A },
                     { "changeuser", ActionType::changeActiveUser_A },

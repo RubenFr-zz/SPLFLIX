@@ -8,6 +8,7 @@
 
 //Constructor
 Session::Session(const std::string &configFilePath) {
+    std::cout << "Constructor called" << std::endl;
     userMap.clear();
     activeUser = nullptr;
     action_in = "";
@@ -19,6 +20,7 @@ Session::Session(const std::string &configFilePath) {
     stream >> json;
     nlohmann::json movies = json["movies"];
     nlohmann::json series = json["tv_series"];
+    stream.close();
 
     long id = 1;
 
@@ -74,12 +76,15 @@ Session::~Session() {
 }
 
 //Copy constructor
-Session::Session(const Session &other) {
-    std::vector<Watchable *> otherContent = other.getContent();
+Session::Session(const Session &other) :    content(), actionsLog(), userMap(), activeUser(),
+                                            action(other.action), action_in(other.action_in),
+                                            StringToAction(other.StringToAction){
+    std::cout << "Copy constructor called" << std::endl;
+    std::vector<Watchable *> otherContent = other.content;
     for (auto show : otherContent) content.push_back(show->clone());
-    std::vector<BaseAction *> otherActions = other.getActionsLog();
+    std::vector<BaseAction *> otherActions = other.actionsLog;
     for (auto act : otherActions) actionsLog.push_back(act->clone());
-    std::unordered_map<std::string,User*> otherUsers = other.getUserMap();
+    std::unordered_map<std::string,User*> otherUsers = other.userMap;
     for (auto user : otherUsers)
     {
         User* cloneUser = user.second->clone();
@@ -89,20 +94,75 @@ Session::Session(const Session &other) {
 }
 
 //Copy assignment operator
-Session &Session::operator=(Session &other) {
+Session& Session::operator=(const Session &other) {
+    if (this != &other){
+        std::vector<Watchable *> otherContent = other.content;
+        std::vector<BaseAction *> otherActions = other.actionsLog;
+        std::unordered_map<std::string,User*> otherUsers = other.userMap;
+        delete this;
+        content = std::vector<Watchable*>();
+
+        for (auto show : otherContent)
+        {
+            Watchable* clone = show->clone();
+            content.push_back(clone);
+        }
+        for (auto act : otherActions) actionsLog.push_back(act->clone());
+        for (auto user : otherUsers)
+        {
+            User* cloneUser = user.second->clone();
+            userMap.insert({cloneUser->getName(), cloneUser});
+        }
+        activeUser = userMap.at(other.getActiveUser()->getName());
+        action = other.action;
+        action_in = other.action_in;
+        StringToAction = other.StringToAction;
+    }
     return *this;
 }
 
 //Move constructor
-Session::Session(Session &&other) {
-
+Session::Session(Session &&other) : content(other.content), actionsLog(other.actionsLog),
+                                    userMap(other.userMap), activeUser(other.activeUser),
+                                    action(other.action), action_in(other.action_in),
+                                    StringToAction(other.StringToAction){
+    std::cout << "Move constructor called" << std::endl;
+    auto otherContent = other.content;
+    for ( auto show : otherContent) show = nullptr;
+    auto otherLog = other.actionsLog;
+    for ( auto log : otherLog) log = nullptr;
+    auto otherUsers = other.userMap;
+    for ( auto user : otherLog) user = nullptr;
+    other.activeUser = nullptr;
 }
 
 //Move assignment operator
 Session &Session::operator=(Session &&other) {
-    getAction();
+    std::cout << "Move assignment called" << std::endl;
+    if(this != &other)
+    {
+        delete this;
+
+        content = other.content;
+        actionsLog = other.actionsLog;
+        userMap = other.userMap;
+        activeUser = other.activeUser;
+        action = other.action;
+        action_in = other.action_in;
+        StringToAction = other.StringToAction;
+
+        auto otherContent = other.content;
+        for ( auto show : otherContent) show = nullptr;
+        auto otherLog = other.actionsLog;
+        for ( auto log : otherLog) log = nullptr;
+        auto otherUsers = other.userMap;
+        for ( auto user : otherLog) user = nullptr;
+    }
     return *this;
 }
+
+
+// Methods
 
 void Session::start() {
 
@@ -118,14 +178,14 @@ void Session::start() {
 
     while (run) {
 
-		getline(std::cin, action_in); // same as cin except it read an entire line !
+        getline(std::cin, action_in); // same as cin except it read an entire line !
         action = split(action_in);
 
         if (action.empty()) {
             std::cout << "No action entered" << std::endl;
         } else {
             ActionType act = ActionType::null;
-            if (getStringToAction().count(action[0]) > 0) { act = getStringToAction().at(action[0]); }
+            if (StringToAction.count(action[0]) > 0) { act = StringToAction.at(action[0]); }
             BaseAction *baseAction;
             bool watching = false;
 
@@ -201,8 +261,6 @@ void Session::start() {
     }
 }
 
-
-//getters
 std::vector<Watchable *> Session::getContent() const { return content; }
 
 std::vector<BaseAction *> Session::getActionsLog() const { return actionsLog; }
@@ -211,7 +269,9 @@ std::unordered_map<std::string, User *> Session::getUserMap() const { return use
 
 User *Session::getActiveUser() const { return activeUser; }
 
-std::vector<std::string> Session::getAction() { return action; }
+std::vector<std::string> Session::getAction() const { return action; }
+
+//std::string Session::getActionIn() const { return action_in; }
 
 std::unordered_map<std::string, ActionType> Session::getStringToAction() const { return StringToAction; }
 

@@ -111,10 +111,3 @@ Watchable *Episode::clone() {
     Watchable *toClone = new Episode(*this);
     return toClone;
 }
-
-//Episode::Episode(const Episode &other) : Watchable(other.getID(), other.getLength(), other.getTags()), seriesName(other.getName()){
-//    episode = other.getEpisode();
-//    season = other.getSeason();
-//    nextEpisodeId = 0;
-//}
-

@@ -167,36 +167,45 @@ Watchable *GenreRecommenderUser::getRecommendation(Session &s) {
     if (nextEpisode(s)) return s.getContent().at(history.back()->getID());
 
     std::vector<Watchable *> content = s.getContent();
+
+    //A map that initialy contains every tags that exists in content with recurence 0
+    // The initLoveMap just go over the tags in content and if first time it sees then add to the map <"tag", 0>
     std::unordered_map<std::string, int> loveMap = initLoveMap(content);
 
-    //Look at the history and create vector of the most loved genres
+    //Look at the history and for every tag +1 in the map (loveMap) previously built
+    //Note that every tag from every content in history will already be in loveMap
+    //Then we just need to iterate over every tag of every content and do +1 in the loveMap
     for (auto it = history.begin(); it != history.end(); ++it) { // Check every content in the history list
-        //Check if the tag is already in the vector
         std::vector<std::string> tags = (*it)->getTags();
-        for (auto it2 = tags.begin(); it2 != tags.end(); ++it2) {
-            if (loveMap.count(*it2) > 0) loveMap[*it2]++;
-        }
+        for (auto tag : tags) loveMap[tag]++;
     }
+
+    // Convert the loveMap (unordered_map) to loveVec (vector)
     std::vector<std::pair<std::string, int>> loveVec(loveMap.begin(), loveMap.end());
-    std:
+
+    // Sort the vector according to fame (the most watched tag = front, the least = back)
+    // If two tags hase the same frequence then sort then alphabetically
     sort(loveVec.begin(), loveVec.end(), [](const std::pair<std::string, int> &p1,
                                             const std::pair<std::string, int> &p2) {
-        if (p1.second == p2.second) return p1.first < p2.first;
-        else return p1.second > p2.second;
-    });
+                                            if (p1.second == p2.second) return p1.first < p2.first;
+                                            else return p1.second > p2.second;});
 
 
-//    Now we will look at the list of all available content and pick one with the genre "bestGenre" that wasn't watched yet
+    // Now we will iterate from all over the loveVec from the most to the least famous tag until we find a content in content that has
+    // a tag from the vector and that isn't in the history
+    // Note that because we start from the most famous (loveVec.begin()) and we return the first show found we are sure it
+    // is indeed the content with the most famous tag available because if not it would have already been chosen
     std::string bestGenre = "";
-    for (auto genre = loveVec.begin();
-         genre != loveVec.end(); ++genre) { // In case we dont find the first most loved genre
-        bestGenre = (*genre).first;
-        for (auto show : content) {// Check every show possible
-            auto hist = find(history, show->getID());// Is that show is in the history?
-            if (hist == nullptr) {// Means that the user didnt watched that, good for us!
+    for (auto genre : loveVec){ //We go through the vector of tags we built before
+        bestGenre = genre.first;
+        for (auto show : content) { // We go through all the content to find the next recommendation with the tag
+            auto hist = find(history, show->getID()); // Is that show is in the history ? return nullptr if not and the show if so
+            if (hist == nullptr) { // Means that the user didnt watched that, good for us!
                 std::vector<std::string> tags = show->getTags();
-                auto tag = find(tags.begin(), tags.end(), bestGenre);// Is that show has the famous tag?
+                // Is that show has the famous tag? return the iterator of the tag if found and tags.end() if not found
+                auto tag = find(tags.begin(), tags.end(), bestGenre);
                 if (tag != tags.end()) { // Means that this show has "bestGenre", good for us!
+                    // That means we found a show in content that isn't in history and that contains the bestGenre we are at
                     return show; // The appropriate show
                 }
             }
@@ -205,6 +214,7 @@ Watchable *GenreRecommenderUser::getRecommendation(Session &s) {
     return nullptr;
 }
 
+// Method that go over the tags in content and if first time it sees then add to the map <"tag", 0>
 std::unordered_map<std::string, int> GenreRecommenderUser::initLoveMap(std::vector<Watchable *> &content) const {
     std::unordered_map<std::string, int> loveMap;
     for (auto it = content.begin(); it != content.end(); ++it) {
