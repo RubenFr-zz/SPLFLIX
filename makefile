@@ -12,7 +12,7 @@ all: SPLFLIX
 SPLFLIX: bin/main.o bin/Action.o bin/User.o bin/Watchable.o bin/Session.o 
 	@echo 'Building target: SPLFLIX'
 	@echo 'Invoking: C++ Linker'
-	$(CC) -o bin/SPLFLIX bin/main.o bin/Action.o bin/User.o bin/Watchable.o bin/Session.o $(LFLAGS)
+	$(CC) -o bin/splflix bin/main.o bin/Action.o bin/User.o bin/Watchable.o bin/Session.o $(LFLAGS)
 	@echo 'Finished building target: SPLFLIX'
 	@echo ' '
 	
