@@ -93,7 +93,7 @@ std::string Episode::toString() const {
 }
 
 std::string Episode::toStringShort() const {
-    std::string str = "Watching " + seriesName + " S";
+    std::string str = seriesName + " S";
     if (season < 10) {str += "0"; }
     str += std::to_string(season) + "E";
     if (episode < 10) {str += "0" ;}

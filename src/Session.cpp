@@ -112,7 +112,7 @@ Session& Session::operator=(const Session &other) {
 
 //Move constructor
 Session::Session(Session &&other) : content(std::move(other.content)), actionsLog(std::move(other.actionsLog)),
-                                    userMap(std::move(other.userMap)), activeUser(std::move(other.activeUser)),
+                                    userMap(std::move(other.userMap)), activeUser(userMap.at(other.activeUser->getName())),
                                     action_in(std::move(other.action_in)), action(std::move(other.action)),
                                     StringToAction(std::move(other.StringToAction)) {}
 
@@ -125,7 +125,7 @@ Session &Session::operator=(Session &&other) {
         content = std::move(other.content);
         actionsLog = std::move(other.actionsLog);
         userMap = std::move(other.userMap);
-        activeUser = std::move(other.activeUser);
+        activeUser = userMap.at(other.activeUser->getName());
         action = std::move(other.action);
         action_in = std::move(other.action_in);
         StringToAction = std::move(other.StringToAction);
@@ -139,7 +139,7 @@ Session &Session::operator=(Session &&other) {
 void Session::start() {
 
     bool run = true;
-    std::cout << "\nSPLFLIX is now on!" << std::endl;
+    std::cout << "SPLFLIX is now on!" << std::endl;
 
     std::string name_default = "default";
     if (userMap.count(name_default) == 0) {

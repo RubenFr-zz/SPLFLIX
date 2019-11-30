@@ -17,6 +17,7 @@ void BaseAction::complete() {
 void BaseAction::error(const std::string &Msg) {
     status = ActionStatus::ERROR;
     changeErrorMsg(Msg);
+    std::cout << "Error - " + Msg << std::endl;
 }
 
 std::string BaseAction::getErrorMsg() const {
@@ -69,7 +70,7 @@ void CreateUser::act(Session &sess)
                 complete();
                 break;
             case(Type::null):
-                error("Incorrect user type");
+                error("recommendation algorithm is invalid");
                 break;
         }
     }
@@ -107,7 +108,7 @@ void ChangeActiveUser::act(Session &sess)
 			complete();
 		}
 		else {
-			error("no user with the name: " + name);
+			error("username does not exist");
 		}
     }
     users.clear();
@@ -137,7 +138,7 @@ void DeleteUser::act(Session &sess)
     }else{
         std::string toDelete = action[1];
         if (users.count(toDelete) > 0) {
-            if ( users.at(toDelete) == sess.getActiveUser()) { error("Cannot delete the active user");
+            if ( users.at(toDelete) == sess.getActiveUser()) { error("username is already in use");
             }
             else {
                 sess.deleteUser(toDelete);
@@ -171,25 +172,24 @@ void DuplicateUser::act(Session &sess)
         error("Input not valid to duplicate a User");
     }
     else{
-        std::string toCopy = action[1];
+        std::string NameToCopy = action[1];
         std::string newUserName = action[2];
         if (users.count(newUserName) > 0)
         {
-            error("The user name is already taken");
+            error("The name is already taken");
         }
-        else if (users.count(toCopy) == 0)
+        else if (users.count(NameToCopy) == 0)
         {
             error("The user doesn't exist");
         }
         else
         {
-            User* newUser(users.at(toCopy));
+            User* toCopy = users.at(NameToCopy);
+            User* newUser = toCopy->clone();
             newUser->modifName(newUserName);
             sess.addUser(*newUser);
             complete();
         }
-        action.clear();
-        users.clear();
     }
 }
 
@@ -310,7 +310,7 @@ void PrintActionsLog::act(Session &sess) {
 
 std::string PrintActionsLog::toString() const {
     std::string str = "PrintActionsLog " + getStatusToString().at(getStatus());
-    if (getStatus() == ActionStatus::ERROR) { str += ": " +getErrorMsg(); }
+    if (getStatus() == ActionStatus::ERROR) { str += ": " + getErrorMsg(); }
     return str;
 }
 
@@ -325,7 +325,7 @@ void Exit::act(Session &sess) { complete(); }
 
 std::string Exit::toString() const {
     std::string str = "Exit " + getStatusToString().at(getStatus());
-    if (getStatus() == ActionStatus::ERROR) { str += ": " +getErrorMsg(); }
+    if (getStatus() == ActionStatus::ERROR) { str += ": " + getErrorMsg(); }
     return str;;
 }
 

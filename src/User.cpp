@@ -1,9 +1,11 @@
 #include "../include/User.h"
 
+#include <utility>
+
 //-------------User class--------------//
 
 //Constructor
-User::User(const std::string &name) : history(), name(name), id(1) {}
+User::User(const std::string &name) : history(), name(name) {}
 
 //Destructor
 User::~User() {
@@ -12,7 +14,7 @@ User::~User() {
 }
 
 //Copy Constructor
-User::User(const User &other) : history(), name(other.getName()), id(1) {
+User::User(const User &other) : history(), name(other.getName()) {
     auto otherHist = other.get_history();
     for (auto show : otherHist) {
         Watchable *toClone = show->clone();
@@ -20,29 +22,33 @@ User::User(const User &other) : history(), name(other.getName()), id(1) {
     }
 }
 
-////Move Constructor
-//User::User(User &&other) : name(other.getName()), history(std::move(other.get_history())) {
-//}
-//
-//
-////Copy Assignment Operator
-//User &User::operator=(const User &other) {
-//    if (this != &other) {
-//        delete &name;
-//        std::string name = std::string(std::move(other.getName()));
-//        history = std::move(other.get_history());
-//    }
-//    return *this;
-//}
-//
-////Move Assigment Operator
-//User &User::operator=(User &&other) {
-//    if (this != &other) {
-//        std::string name = other.getName();
-//        history = other.get_history();
-//    }
-//    return *this;
-//}
+//Move Constructor
+User::User(User &&other) : history(std::move(other.history)), name(other.name) {}
+
+//Copy Assignment Operator
+User &User::operator=(const User &other) {
+    if (this != &other) {
+        auto hist = other.history;
+        delete this;
+
+        for (auto show : hist) {
+            Watchable *clone = show->clone();
+            history.push_back(clone);
+        }
+        name = other.name;
+    }
+    return *this;
+}
+
+//Move Assigment Operator
+User &User::operator=(User &&other) {
+    if (this != &other) {
+        delete this;
+        name = other.name;
+        history = std::move(other.get_history());
+    }
+    return *this;
+}
 
 
 std::string User::getName() const {
@@ -54,7 +60,7 @@ std::vector<Watchable *> User::get_history() const {
 }
 
 void User::modifName(std::string other) {
-    name = other;
+    name = std::move(other);
 }
 
 void User::watched(Watchable &content) {
@@ -66,15 +72,15 @@ bool User::nextEpisode(Session &s) {
     Watchable *watched = history.back();
     if (dynamic_cast<Episode *>(watched) != nullptr) {
         // If the element the user just watched is not the last content and the next content is in the same serie
-        if (s.getContent().back()->getID() != watched->getID() && s.getContent().at(watched->getID())->getName() == watched->getName()) {
+        if (s.getContent().back()->getID() != watched->getID() &&
+            s.getContent().at(watched->getID())->getName() == watched->getName()) {
             return true;
         }
     }
     return false;
 }
 
-Watchable *User::find(std::vector<Watchable *> vector, const int toFind)
-{
+Watchable *User::find(const std::vector<Watchable *> &vector, const unsigned int toFind) {
     for (auto it : vector) {
         if (it->getID() == toFind) return it;
     }
@@ -86,6 +92,43 @@ Watchable *User::find(std::vector<Watchable *> vector, const int toFind)
 
 //Contructor
 LengthRecommenderUser::LengthRecommenderUser(const std::string &name) : User(name) {}
+
+//Destructor
+LengthRecommenderUser::~LengthRecommenderUser() {}
+
+//Copy Constructor
+LengthRecommenderUser::LengthRecommenderUser(const LengthRecommenderUser &other) : User(other) {}
+
+//Copy assignment operator
+LengthRecommenderUser& LengthRecommenderUser::operator=(const LengthRecommenderUser& other)
+{
+    if (this != &other) {
+        auto hist = other.history;
+        delete this;
+        modifName(other.getName());
+
+        for (auto show : hist) {
+            Watchable *clone = show->clone();
+            history.push_back(clone);
+        }
+
+    }
+    return *this;
+}
+
+//Move constructor
+LengthRecommenderUser::LengthRecommenderUser(LengthRecommenderUser&& other) : User(other) {}
+
+//Move assignment operator
+LengthRecommenderUser& LengthRecommenderUser::operator=(LengthRecommenderUser&& other)
+{
+    if (this != &other) {
+        delete this;
+        modifName(other.getName());
+        history = std::move(other.get_history());
+    }
+    return *this;
+}
 
 Watchable *LengthRecommenderUser::getRecommendation(Session &s) {
 
@@ -131,8 +174,45 @@ User *LengthRecommenderUser::clone() {
 
 //---------------RerunRecommenderUser class---------------//
 
-//Constructor
+//Contructor
 RerunRecommenderUser::RerunRecommenderUser(const std::string &name) : User(name), cycle(-1) {}
+
+//Destructor
+RerunRecommenderUser::~RerunRecommenderUser() {}
+
+//Copy Constructor
+RerunRecommenderUser::RerunRecommenderUser(const RerunRecommenderUser &other) : User(other), cycle(other.cycle) {}
+
+//Copy assignment operator
+RerunRecommenderUser& RerunRecommenderUser::operator=(const RerunRecommenderUser& other)
+{
+    if (this != &other) {
+        auto hist = other.history;
+        delete this;
+        modifName(other.getName());
+
+        for (auto show : hist) {
+            Watchable *clone = show->clone();
+            history.push_back(clone);
+        }
+
+    }
+    return *this;
+}
+
+//Move constructor
+RerunRecommenderUser::RerunRecommenderUser(RerunRecommenderUser&& other) : User(other), cycle(other.cycle) {}
+
+//Move assignment operator
+RerunRecommenderUser& RerunRecommenderUser::operator=(RerunRecommenderUser&& other)
+{
+    if (this != &other) {
+        delete this;
+        modifName(other.getName());
+        history = std::move(other.get_history());
+    }
+    return *this;
+}
 
 Watchable *RerunRecommenderUser::getRecommendation(Session &s) {
 
@@ -155,8 +235,45 @@ User *RerunRecommenderUser::clone() {
 
 //---------------GenreRecommenderUser class---------------//
 
-//Constructor
+//Contructor
 GenreRecommenderUser::GenreRecommenderUser(const std::string &name) : User(name) {}
+
+//Destructor
+GenreRecommenderUser::~GenreRecommenderUser() {}
+
+//Copy Constructor
+GenreRecommenderUser::GenreRecommenderUser(const GenreRecommenderUser &other) : User(other) {}
+
+//Copy assignment operator
+GenreRecommenderUser& GenreRecommenderUser::operator=(const GenreRecommenderUser& other)
+{
+    if (this != &other) {
+        auto hist = other.history;
+        delete this;
+        modifName(other.getName());
+
+        for (auto show : hist) {
+            Watchable *clone = show->clone();
+            history.push_back(clone);
+        }
+
+    }
+    return *this;
+}
+
+//Move constructor
+GenreRecommenderUser::GenreRecommenderUser(GenreRecommenderUser&& other) : User(other) {}
+
+//Move assignment operator
+GenreRecommenderUser& GenreRecommenderUser::operator=(GenreRecommenderUser&& other)
+{
+    if (this != &other) {
+        delete this;
+        modifName(other.getName());
+        history = std::move(other.get_history());
+    }
+    return *this;
+}
 
 
 Watchable *GenreRecommenderUser::getRecommendation(Session &s) {
@@ -173,9 +290,9 @@ Watchable *GenreRecommenderUser::getRecommendation(Session &s) {
     //Look at the history and for every tag +1 in the map (loveMap) previously built
     //Note that every tag from every content in history will already be in loveMap
     //Then we just need to iterate over every tag of every content and do +1 in the loveMap
-    for (auto it = history.begin(); it != history.end(); ++it) { // Check every content in the history list
-        std::vector<std::string> tags = (*it)->getTags();
-        for (auto tag : tags) loveMap[tag]++;
+    for (auto &it : history) { // Check every content in the history list
+        std::vector<std::string> tags = it->getTags();
+        for (const auto &tag : tags) loveMap[tag]++;
     }
 
     // Convert the loveMap (unordered_map) to loveVec (vector)
@@ -185,19 +302,21 @@ Watchable *GenreRecommenderUser::getRecommendation(Session &s) {
     // If two tags hase the same frequence then sort then alphabetically
     sort(loveVec.begin(), loveVec.end(), [](const std::pair<std::string, int> &p1,
                                             const std::pair<std::string, int> &p2) {
-                                            if (p1.second == p2.second) return p1.first < p2.first;
-                                            else return p1.second > p2.second;});
+        if (p1.second == p2.second) return p1.first < p2.first;
+        else return p1.second > p2.second;
+    });
 
 
     // Now we will iterate from all over the loveVec from the most to the least famous tag until we find a content in content that has
     // a tag from the vector and that isn't in the history
     // Note that because we start from the most famous (loveVec.begin()) and we return the first show found we are sure it
     // is indeed the content with the most famous tag available because if not it would have already been chosen
-    std::string bestGenre = "";
-    for (auto genre : loveVec){ //We go through the vector of tags we built before
+    std::string bestGenre;
+    for (const auto &genre : loveVec) { //We go through the vector of tags we built before
         bestGenre = genre.first;
         for (auto show : content) { // We go through all the content to find the next recommendation with the tag
-            auto hist = find(history, show->getID()); // Is that show is in the history ? return nullptr if not and the show if so
+            auto hist = find(history,
+                             show->getID()); // Is that show is in the history ? return nullptr if not and the show if so
             if (hist == nullptr) { // Means that the user didnt watched that, good for us!
                 std::vector<std::string> tags = show->getTags();
                 // Is that show has the famous tag? return the iterator of the tag if found and tags.end() if not found
@@ -213,7 +332,7 @@ Watchable *GenreRecommenderUser::getRecommendation(Session &s) {
 }
 
 // Method that go over the tags in content and if first time it sees then add to the map <"tag", 0>
-std::unordered_map<std::string, int> GenreRecommenderUser::initLoveMap(std::vector<Watchable *> &content) const {
+std::unordered_map<std::string, int> GenreRecommenderUser::initLoveMap(std::vector<Watchable *> &content) {
     std::unordered_map<std::string, int> loveMap;
     for (auto it = content.begin(); it != content.end(); ++it) {
         std::vector<std::string> tags = (*it)->getTags();
