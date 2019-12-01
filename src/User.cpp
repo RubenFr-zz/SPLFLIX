@@ -171,8 +171,8 @@ Watchable *LengthRecommenderUser::getRecommendation(Session &s) {
 int LengthRecommenderUser::getAvgLen() const {
     int sum = 0;
     if (history.empty()) return -1;
-    for (auto it = history.begin(); it != history.end(); ++it) {
-        int len = (*it)->getLength();
+    for (auto it : history) {
+        int len = it->getLength();
         sum += len;
     }
     return (int) (sum / history.size());
@@ -236,12 +236,9 @@ Watchable *RerunRecommenderUser::getRecommendation(Session &s) {
     //If there is a next episode return it
     if (nextEpisode(s)) return s.getContent().at(history.back()->getID());
 
-    Watchable *recommendation = nullptr;
-    if (history.empty()) return recommendation;
+    if (history.empty()) return nullptr;
     cycle %= history.size();
-    recommendation = history.at(cycle);
-    cycle++;
-    return recommendation;
+    return history.at(cycle++);
 
 }
 
@@ -358,10 +355,10 @@ Watchable *GenreRecommenderUser::getRecommendation(Session &s) {
 // Method that go over the tags in content and if first time it sees then add to the map <"tag", 0>
 std::unordered_map<std::string, int> GenreRecommenderUser::initLoveMap(std::vector<Watchable *> &content) {
     std::unordered_map<std::string, int> loveMap;
-    for (auto it = content.begin(); it != content.end(); ++it) {
-        std::vector<std::string> tags = (*it)->getTags();
-        for (auto it2 = tags.begin(); it2 != tags.end(); ++it2) {
-            if (loveMap.count(*it2) == 0) loveMap.insert({*it2, 0});
+    for (auto & it : content) {
+        std::vector<std::string> tags = it->getTags();
+        for (auto & tag : tags) {
+            if (loveMap.count(tag) == 0) loveMap.insert({tag, 0});
         }
     }
     return loveMap;
