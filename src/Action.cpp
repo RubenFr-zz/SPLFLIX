@@ -4,7 +4,6 @@
 
 BaseAction::BaseAction() : errorMsg(), status(ActionStatus::PENDING) {}
 
-BaseAction::~BaseAction() = default;
 
 ActionStatus BaseAction::getStatus() const {
     return status;
@@ -30,7 +29,7 @@ void BaseAction::changeErrorMsg(const std::string& msg)
 }
 
 //Getters---------------------------------
-std::unordered_map<std::string, Type> BaseAction::getStringToType() const { return StringToType; };
+std::unordered_map<std::string, Type> BaseAction::getStringToType() const { return StringToType; }
 std::unordered_map<ActionStatus, std::string> BaseAction::getStatusToString() const { return StatusToString; }
 
 
@@ -74,7 +73,6 @@ void CreateUser::act(Session &sess)
                 break;
         }
     }
-	return;
 }
 
 std::string CreateUser::toString() const
@@ -102,17 +100,13 @@ void ChangeActiveUser::act(Session &sess)
         error("Input not valid to change the active User");  // To create a user 2 words must me entered !
     }else{
         name = action[1];
-        if (users.count(name) > 0) 
-		{  
-			sess.changeActiveUser(*users.at(name));
-			complete();
-		}
-		else {
-			error("username does not exist");
-		}
+        if (users.count(name) <= 0)
+            error("username does not exist");
+        else {
+            sess.changeActiveUser(*users.at(name));
+            complete();
+        }
     }
-    users.clear();
-    action.clear();
 }
 
 std::string ChangeActiveUser::toString() const
@@ -238,13 +232,11 @@ void PrintWatchHistory::act(Session &sess) {
     if (!watch_history.empty()) {
         std::cout << "Watch history for: " << active_user->getName() << std::endl;
         long id = 1;
-        for (auto it = watch_history.begin(); it != watch_history.end(); ++it) {
-            Watchable *tmp = *it;
+        for (auto tmp : watch_history) {
             std::cout << std::to_string(id++) + ". " + tmp->toStringShort() << std::endl;
         }
     }
     complete();
-    return;
 }
 
 std::string PrintWatchHistory::toString() const {
@@ -326,7 +318,7 @@ void Exit::act(Session &sess) { complete(); }
 std::string Exit::toString() const {
     std::string str = "Exit " + getStatusToString().at(getStatus());
     if (getStatus() == ActionStatus::ERROR) { str += ": " + getErrorMsg(); }
-    return str;;
+    return str;
 }
 
 BaseAction *Exit::clone() {

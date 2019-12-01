@@ -5,7 +5,6 @@
 //Constructor
 Watchable::Watchable(long id, int length, const std::vector<std::string> &tags) : id(id), length(length), tags(tags) {}
 
-Watchable::~Watchable() {};
 
 //getters
 long Watchable::getID() const { return id; }
@@ -18,10 +17,6 @@ std::vector<std::string> Watchable::getTags() const { return tags; }
 //-----------Movie class------------------
 Movie::Movie(long id, std::string &name, int length, std::vector<std::string> &tags) :
         Watchable(id, length, tags), name(name) {}
-
-Movie::~Movie() {}
-
-//Movie::Movie(const Movie &other) : Watchable(other.getID(), other.getLength(), other.getTags()), name(other.getName()) {}
 
 std::string Movie::toString() const
 {
@@ -57,19 +52,14 @@ Watchable *Movie::clone() {
     return toClone;
 }
 
-//Movie::Movie(const Movie &other) : Watchable(other.getID(), other.getLength(), other.getTags()){
-//    name = other.getName();
-//}
 
 //-------------Episode class---------------
 Episode::Episode(long id, const std::string &seriesName, int length, int season, int episode,
                  const std::vector<std::string> &tags) :
         Watchable(id, length, tags), seriesName(seriesName), season(season),  episode(episode), nextEpisodeId() {}
 
-Episode::~Episode() {}
-
 std::string Episode::toString() const {
-    std::string str = "";
+    std::string str;
     str += std::to_string(getID()) + ". ";
     str += seriesName;
     str += " S";

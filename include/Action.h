@@ -21,7 +21,7 @@ enum class Type{
 class BaseAction {
 public:
 	BaseAction();
-	virtual ~BaseAction();
+	virtual ~BaseAction() {}
 	ActionStatus getStatus() const;
 	virtual void act(Session& sess) = 0;
 	virtual std::string toString() const = 0;

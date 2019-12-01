@@ -39,8 +39,8 @@ Session::Session(const std::string &configFilePath) : content(), actionsLog(), u
         for (auto & tag : show["tags"]) {
             tags.push_back(tag);
         }
-        for (unsigned int S = 0; S < show["seasons"].size(); S++) {
-            for (unsigned int E = 1; E <= show["seasons"][S]; E++) {
+        for (int S = 0; (unsigned) S < show["seasons"].size(); S++) {
+            for (int E = 1; (unsigned) E <= show["seasons"][S]; E++) {
                 Watchable *episode = new Episode(id, name, length, S + 1, E, tags);
                 content.push_back(episode);
                 id++;
@@ -88,8 +88,23 @@ Session& Session::operator=(const Session &other) {
         std::vector<Watchable *> otherContent = other.content;
         std::vector<BaseAction *> otherActions = other.actionsLog;
         std::unordered_map<std::string,User*> otherUsers = other.userMap;
-        delete this;
-        content = std::vector<Watchable*>();
+
+        //----------------------------------------------
+        // Delete all the content of the old session
+        //----------------------------------------------
+        for(auto it : content) delete it;
+        content.clear();
+        for(auto it : actionsLog) delete it;
+        actionsLog.clear();
+
+        std::vector<std::string> usersName;
+        for(const auto& it : userMap) usersName.push_back(it.first);
+        for (const std::string& name : usersName)
+        {
+            delete userMap.at(name);
+            userMap.erase(name);
+        }
+        //----------------------------------------------
 
         for (auto show : otherContent)
         {
@@ -120,7 +135,22 @@ Session::Session(Session &&other) : content(std::move(other.content)), actionsLo
 Session &Session::operator=(Session &&other) {
     if(this != &other)
     {
-        delete this;
+        //----------------------------------------------
+        // Delete all the content of the old session
+        //----------------------------------------------
+        for(auto it : content) delete it;
+        content.clear();
+        for(auto it : actionsLog) delete it;
+        actionsLog.clear();
+
+        std::vector<std::string> usersName;
+        for(const auto& it : userMap) usersName.push_back(it.first);
+        for (const std::string& name : usersName)
+        {
+            delete userMap.at(name);
+            userMap.erase(name);
+        }
+        //----------------------------------------------
 
         content = std::move(other.content);
         actionsLog = std::move(other.actionsLog);
@@ -159,7 +189,7 @@ void Session::start() {
             ActionType act = ActionType::null;
             if (StringToAction.count(action[0]) > 0) { act = StringToAction.at(action[0]); }
             BaseAction *baseAction;
-            bool watching = false;
+            bool watching;
 
             switch (act) {
                 case (createUser_A):
@@ -243,11 +273,8 @@ User *Session::getActiveUser() const { return activeUser; }
 
 std::vector<std::string> Session::getAction() const { return action; }
 
-//std::string Session::getActionIn() const { return action_in; }
 
-std::unordered_map<std::string, ActionType> Session::getStringToAction() const { return StringToAction; }
-
-std::vector<std::string> Session::split(std::string string) const {
+std::vector<std::string> Session::split(const std::string& string) const {
     std::istringstream ss(string);
     std::vector<std::string> results(std::istream_iterator<std::string>{ss},
                                      std::istream_iterator<std::string>());
@@ -270,3 +297,4 @@ void Session::changeMovie(ActionType type, long id) {
     if (type != ActionType::watch_A) return;
     action[1] = std::to_string(id);
 }
+

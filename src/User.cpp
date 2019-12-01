@@ -10,7 +10,7 @@ User::User(const std::string &name) : history(), name(name) {}
 //Destructor
 User::~User() {
     for (auto it : history) delete it;
-    history.clear(); //Not sure if really need it
+    history.clear();
 }
 
 //Copy Constructor
@@ -29,7 +29,9 @@ User::User(User &&other) : history(std::move(other.history)), name(other.name) {
 User &User::operator=(const User &other) {
     if (this != &other) {
         auto hist = other.history;
-        delete this;
+
+        for (auto it : history) delete it;
+        history.clear();
 
         for (auto show : hist) {
             Watchable *clone = show->clone();
@@ -43,7 +45,10 @@ User &User::operator=(const User &other) {
 //Move Assigment Operator
 User &User::operator=(User &&other) {
     if (this != &other) {
-        delete this;
+
+        for (auto it : history) delete it;
+        history.clear();
+
         name = other.name;
         history = std::move(other.get_history());
     }
@@ -94,7 +99,7 @@ Watchable *User::find(const std::vector<Watchable *> &vector, const unsigned int
 LengthRecommenderUser::LengthRecommenderUser(const std::string &name) : User(name) {}
 
 //Destructor
-LengthRecommenderUser::~LengthRecommenderUser() {}
+LengthRecommenderUser::~LengthRecommenderUser() = default;
 
 //Copy Constructor
 LengthRecommenderUser::LengthRecommenderUser(const LengthRecommenderUser &other) : User(other) {}
@@ -104,7 +109,10 @@ LengthRecommenderUser& LengthRecommenderUser::operator=(const LengthRecommenderU
 {
     if (this != &other) {
         auto hist = other.history;
-        delete this;
+
+        for (auto it : history) delete it;
+        history.clear();
+
         modifName(other.getName());
 
         for (auto show : hist) {
@@ -123,7 +131,10 @@ LengthRecommenderUser::LengthRecommenderUser(LengthRecommenderUser&& other) : Us
 LengthRecommenderUser& LengthRecommenderUser::operator=(LengthRecommenderUser&& other)
 {
     if (this != &other) {
-        delete this;
+
+        for (auto it : history) delete it;
+        history.clear();
+
         modifName(other.getName());
         history = std::move(other.get_history());
     }
@@ -175,10 +186,10 @@ User *LengthRecommenderUser::clone() {
 //---------------RerunRecommenderUser class---------------//
 
 //Contructor
-RerunRecommenderUser::RerunRecommenderUser(const std::string &name) : User(name), cycle(-1) {}
+RerunRecommenderUser::RerunRecommenderUser(const std::string &name) : User(name), cycle(0) {}
 
 //Destructor
-RerunRecommenderUser::~RerunRecommenderUser() {}
+RerunRecommenderUser::~RerunRecommenderUser() = default;
 
 //Copy Constructor
 RerunRecommenderUser::RerunRecommenderUser(const RerunRecommenderUser &other) : User(other), cycle(other.cycle) {}
@@ -188,7 +199,10 @@ RerunRecommenderUser& RerunRecommenderUser::operator=(const RerunRecommenderUser
 {
     if (this != &other) {
         auto hist = other.history;
-        delete this;
+
+        for (auto it : history) delete it;
+        history.clear();
+
         modifName(other.getName());
 
         for (auto show : hist) {
@@ -207,7 +221,10 @@ RerunRecommenderUser::RerunRecommenderUser(RerunRecommenderUser&& other) : User(
 RerunRecommenderUser& RerunRecommenderUser::operator=(RerunRecommenderUser&& other)
 {
     if (this != &other) {
-        delete this;
+
+        for (auto it : history) delete it;
+        history.clear();
+
         modifName(other.getName());
         history = std::move(other.get_history());
     }
@@ -221,8 +238,9 @@ Watchable *RerunRecommenderUser::getRecommendation(Session &s) {
 
     Watchable *recommendation = nullptr;
     if (history.empty()) return recommendation;
-    ++cycle %= history.size();
+    cycle %= history.size();
     recommendation = history.at(cycle);
+    cycle++;
     return recommendation;
 
 }
@@ -249,7 +267,10 @@ GenreRecommenderUser& GenreRecommenderUser::operator=(const GenreRecommenderUser
 {
     if (this != &other) {
         auto hist = other.history;
-        delete this;
+
+        for (auto it : history) delete it;
+        history.clear();
+
         modifName(other.getName());
 
         for (auto show : hist) {
@@ -268,7 +289,10 @@ GenreRecommenderUser::GenreRecommenderUser(GenreRecommenderUser&& other) : User(
 GenreRecommenderUser& GenreRecommenderUser::operator=(GenreRecommenderUser&& other)
 {
     if (this != &other) {
-        delete this;
+
+        for (auto it : history) delete it;
+        history.clear();
+
         modifName(other.getName());
         history = std::move(other.get_history());
     }

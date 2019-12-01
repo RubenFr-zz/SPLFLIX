@@ -27,7 +27,9 @@ public:
 	~Session();	//Destructor
 	Session(const Session& other); //Copy constructor
 	Session& operator=(const Session& other); //Copy assignment operator
-	Session(Session&& other); //Move constructor
+	Session(Session&& other);
+
+    //Move constructor
 	Session& operator=(Session&& other); //Move assignment operator
 
 	void start();
@@ -38,14 +40,13 @@ public:
     std::unordered_map<std::string, User*> getUserMap() const;
     User* getActiveUser() const;
     std::vector<std::string> getAction() const;
-    std::unordered_map<std::string,ActionType> getStringToAction() const;
+
     void changeActiveUser(User& other);
     void addUser(User& user);
     void deleteUser(const std::string& toDelete);
-//    std::string getActionIn() const;
 
 protected:
-    std::vector<std::string> split(std::string string) const; // Function that split the array string into a vector of every word "action"
+    std::vector<std::string> split(const std::string& string) const; // Function that split the array string into a vector of every word "action"
     void changeMovie(ActionType type, long id);
 
 private:
